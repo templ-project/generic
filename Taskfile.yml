@@ -1,0 +1,240 @@
+version: "3"
+
+vars:
+  __TF_HEADER_LINE: "=============================================================="
+
+tasks:
+  # ==========================================================================
+  # Build Tasks
+  # ==========================================================================
+
+  print:env:
+    desc: "Print current build environment variables"
+    cmds:
+      - cmd: env
+        platforms: [darwin, linux]
+      - cmd: powershell -Command "Get-ChildItem Env:"
+        platforms: [windows]
+
+  build:
+    desc: "Build project (system: {{.CPP_BUILD_SYSTEM}}, type: {{.CPP_BUILD_TYPE}})"
+    cmds:
+      - task: print:env
+      - cmd: echo "Building ..."
+
+  # ============================================================================
+  # Clean Tasks
+  # ============================================================================
+
+  clean:
+    desc: "Clean all build artifacts"
+    cmds:
+      - cmd: echo "Cleaning ..."
+
+  # ============================================================================
+  # Code Quality Tasks
+  # ============================================================================
+
+  format:
+    desc: "Format code and fix issues"
+    deps:
+      - task: format:prettier
+    cmds:
+      - cmd: echo "✅ Code format completed"
+
+  format:prettier:
+    cmds:
+      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
+      # - npx prettier --write "./**/*.{json,toml,yaml,yml}"
+      - npx prettier --write "./**/*.{json,yaml,yml}"
+    desc: "Format code using Prettier"
+    silent: true
+
+  format:check:
+    desc: "Check code formatting without fixing"
+    deps:
+      - task: format:check:prettier
+    cmds:
+      - cmd: echo "✅ Code format check completed"
+
+  format:check:prettier:
+    cmds:
+      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
+      # - npx prettier --check "./**/*.{json,toml,yaml,yml}"
+      - npx prettier --check "./**/*.{json,yaml,yml}"
+    desc: "Check code formatting using Prettier"
+    silent: true
+
+  lint:
+    desc: "Run linter and fix issues"
+    deps:
+      - task: lint:eslint
+      - task: lint:powershell
+      - task: lint:shellcheck
+    cmds:
+      - cmd: echo "✅ Linting completed"
+
+  lint:eslint:
+    cmds:
+      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/34
+      # - npx eslint --fix "./**/*.{json,toml,yaml,yml}"
+      - npx eslint --fix "./**/*.{json,yaml,yml}"
+      - echo "- ✅ eslint lint completed"
+    desc: "Lint code using ESLint"
+    silent: true
+
+  lint:powershell:
+    cmds:
+      - pwsh -File .scripts/lint-powershell.ps1 -Fix
+    desc: "Lint PowerShell scripts using PSScriptAnalyzer"
+    silent: false
+
+  lint:shellcheck:
+    cmds:
+      - bash .scripts/lint-shellcheck.sh --fix
+    desc: "Lint shell scripts using ShellCheck"
+    silent: false
+
+  lint:check:
+    desc: "Run linter without fixing"
+    deps:
+      - task: lint:check:eslint
+      - task: lint:check:powershell
+      - task: lint:check:shellcheck
+    cmds:
+      - cmd: echo "✅ Linting check completed"
+
+  lint:check:eslint:
+    cmds:
+      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/34
+      # - npx eslint "./**/*.{json,toml,yaml,yml}"
+      - npx eslint "./**/*.{json,yaml,yml}"
+      - echo "- ✅ eslint lint check completed"
+    desc: "Check code using ESLint"
+    silent: true
+
+  lint:check:powershell:
+    cmds:
+      - pwsh -File .scripts/lint-powershell.ps1
+    desc: "Check PowerShell scripts using PSScriptAnalyzer"
+    silent: false
+
+  lint:check:shellcheck:
+    cmds:
+      - bash .scripts/lint-shellcheck.sh
+    desc: "Check shell scripts using ShellCheck"
+    silent: false
+
+  duplicate-check:
+    cmds:
+      - "[ ! -d ./node_modules ] && npm install jscpd @jscpd/badge-reporter"
+      - npx jscpd src/ include/
+      - git add .jscpd/jscpd-badge.svg 2>/dev/null || true
+    desc: "Check for duplicate code using jscpd"
+
+  # ============================================================================
+  # Test Tasks
+  # ============================================================================
+
+  test:
+    desc: "Run tests (system: {{.CPP_BUILD_SYSTEM}})"
+    cmds:
+      - task: build
+      - cmd: echo "Testing ..."
+
+  test:gen-coverage:
+    cmds:
+      - cmd: echo "Generating coverage report ..."
+    desc: "Generate test coverage report"
+    silent: true
+
+  # ============================================================================
+  # Development Tools
+  # ============================================================================
+
+  run:
+    desc: "Run application"
+    deps:
+      - task: build
+    cmds:
+      - cmd: echo "Running ..."
+
+  debug:
+    desc: "Run application with debugger (gdb on Linux/macOS)"
+    cmds:
+      - task: Build
+      - cmd: echo "Running (Debug mode)... "
+
+  # ============================================================================
+  # Documentation Tasks
+  # ============================================================================
+
+  docs:
+    desc: "Build documentation"
+    cmds:
+      - mkdocs build
+
+  docs:serve:
+    desc: "Serve documentation locally with live reload"
+    cmds:
+      - |
+        echo "📚 Starting documentation server..."
+        echo "📖 Open http://127.0.0.1:8000 in your browser"
+        mkdocs serve
+
+  docs:deploy:
+    desc: "Deploy documentation to GitHub Pages"
+    cmds:
+      - mkdocs gh-deploy --force
+
+  # ============================================================================
+  # Validation Tasks
+  # ============================================================================
+
+  validate:
+    cmds:
+      - task: format
+      - task: clean
+      - task: build
+      - task: lint
+      - task: run
+      - task: clean
+      - task: test
+      - cmd: |
+          echo ""
+          echo "{{.__TF_HEADER_LINE}}"
+          echo "✅ Validation successful"
+          echo "{{.__TF_HEADER_LINE}}"
+          echo ""
+    desc: "Run CI pipeline for specific build system and compiler"
+    silent: true
+
+  # ============================================================================
+  # Python/UV Package Management Tasks
+  # ============================================================================
+
+  uv:refresh:
+    desc: "Refresh all Python packages (update dependencies)"
+    cmds:
+      - |
+        echo "🔄 Refreshing Python packages..."
+        uv sync --upgrade
+        echo "✓ Packages refreshed"
+
+  uv:sync:
+    desc: "Install Python dependencies (including pre-commit)"
+    cmds:
+      - |
+        echo "📦 Installing Python dependencies..."
+        uv sync
+        echo "🪝 Installing pre-commit hooks..."
+        pre-commit install
+        echo "✓ Python environment ready"
+
+  # valgrind:
+  #   desc: "Run application with Valgrind"
+  #   deps:
+  #     - task: build
+  #       vars: { CPP_BUILD_TYPE: "Debug" }
+  #   cmds:
+  #     - mise exec -- valgrind --leak-check=full --show-leak-kinds=all ./{{.CPP_BUILD_DIR}}/src/{{.CPP_PROJECT_NAME}}

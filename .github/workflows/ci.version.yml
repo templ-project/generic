@@ -1,0 +1,35 @@
+name: CI » Version
+
+on:
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        description: "GitHub token for version bump and PR creation"
+        required: true
+    outputs:
+      version_tag:
+        description: "The version tag that was created (e.g., v1.2.3)"
+        value: ${{ jobs.version.outputs.version_tag }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      version_tag: ${{ steps.bump.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump version with Bumpalicious
+        id: bump
+        uses: dragoscops/bumpalicious@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr: "true"
+          workspaces: ".:cargo"
+
+      - name: Output new version
+        run: |
+          echo "New version tag: ${{ steps.bump.outputs.tag }}"

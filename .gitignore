@@ -5,3 +5,17 @@
 # Build
 out
 dist
+
+# mise
+.mise.local.toml
+
+# Node
+node_modules/
+
+# Python/Uv
+__pycache__/
+.venv/
+
+# PSScriptAnalyzer
+.github/scripts/install-psscriptanalyzer.ps1
+

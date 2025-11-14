@@ -1,0 +1,101 @@
+name: CI » Validate & Build
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system to run on"
+        required: false
+        type: string
+        default: "ubuntu-latest"
+
+jobs:
+  # Setup job runs once to populate mise cache for parallel jobs
+  setup:
+    runs-on: ${{ inputs.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-tools
+
+  build:
+    runs-on: ${{ inputs.os }}
+    needs: [setup]
+    strategy:
+      matrix:
+        profile:
+          - debug
+          - release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-tools
+
+      - name: Build (${{ matrix.profile }})
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          mise exec -- task build
+        shell: bash
+
+  lint:
+    runs-on: ${{ inputs.os }}
+    needs: [setup, build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-tools
+
+      - name: Check Code Formatting
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          mise exec -- task format:check
+        shell: bash
+
+      - name: Lint Code
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          mise exec -- task lint:check
+        shell: bash
+
+  test:
+    runs-on: ${{ inputs.os }}
+    needs: [setup, lint]
+    strategy:
+      matrix:
+        task_manager:
+          - task
+    steps:
+      - uses: actions/checkout@v4
+      # duplicate check only requires node setup
+      - uses: setup/node@v3
+
+      - name: Run Tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          mise exec -- task test
+        shell: bash
+
+      - name: Run Tests with Coverage
+        if: ${{ inputs.os == 'ubuntu-latest' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          mise exec -- task test:gen-coverage
+        shell: bash
+
+  duplicate-check:
+    if: ${{ inputs.os == 'ubuntu-latest' }}
+    runs-on: ${{ inputs.os }}
+    needs: [setup]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-tools
+
+      - name: Run duplicate check
+        run: mise exec -- task duplicate-check

@@ -1,0 +1,73 @@
+name: "Setup Development Tools"
+description: "Install Task, mise, and project tools with caching"
+runs:
+  using: "composite"
+  steps:
+    # === task ===
+    - name: Setup Task
+      uses: go-task/setup-task@v1
+
+    # === mise ===
+    - name: Install Mise (Darwin & Linux)
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      if: ${{ runner.os != 'Windows' }}
+      shell: bash
+      run: |
+        curl https://mise.run | sh
+        echo "eval \"\$(/Users/runner/.local/bin/mise activate bash)\"" >> ~/.bashrc
+        mise activate
+
+    - name: Install Mise (Windows)
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      if: ${{ runner.os == 'Windows' }}
+      shell: pwsh
+      run: |
+        choco install mise -y --force --no-progress
+
+    - name: Update Mise
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      shell: bash
+      run: |
+        mise self-update
+        mise --version
+
+    - uses: actions/cache@v4
+      if: ${{ runner.os != 'Windows' }}
+      with:
+        key: ${{ runner.os }}-${{ runner.arch }}-mise-tools-${{ hashFiles('mise.lock') }}
+        path: |
+          ~/.local/share/mise
+          ~/.cache/mise
+
+    - uses: actions/cache@v4
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        key: ${{ runner.os }}-${{ runner.arch }}-mise-tools-${{ hashFiles('mise.lock') }}
+        path: |
+          ~\AppData\Local\mise\installs
+          ~\.cache\mise
+
+    - uses: actions/cache@v4
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        key: ${{ runner.os }}-${{ runner.arch }}-uv-${{ hashFiles('uv.lock') }}
+        path: |
+          .venv
+
+    # === mise install ===
+    # === uv sync ===
+    - name: Install mise tools
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        MISE_HTTP_TIMEOUT: 600
+        PYTHONIOENCODING: utf-8
+      run: |
+        mise install --yes
+
+        # Install Python dependencies (mise will handle venv creation/activation)
+        echo "Installing Python dependencies..."
+        mise exec -- uv sync

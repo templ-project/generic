@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@templ-project/eslint": "^1.2.2",
+    "@templ-project/prettier": "^1.0.6"
+  }
+}

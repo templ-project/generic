@@ -1,0 +1,78 @@
+name: CI » Release
+
+on:
+    workflow_call:
+        inputs:
+            version_tag:
+                description: "Version tag for the release (e.g., v1.2.3)"
+                required: true
+                type: string
+            prerelease:
+                description: "Mark as pre-release"
+                required: false
+                type: boolean
+                default: false
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ inputs.version_tag }}
+                  fetch-depth: 0
+
+            - name: Setup Rust toolchain
+              uses: ./.github/actions/setup-tools
+
+            - name: Read changelog
+              id: changelog
+              run: |
+                  if [ -f CHANGELOG.md ]; then
+                    echo "Using generated CHANGELOG.md from bumpalicious"
+                  else
+                    echo "CHANGELOG.md not found, will use tag as body"
+                    echo "Release ${{ inputs.version_tag }}" > CHANGELOG.md
+                  fi
+
+            - name: Build release binaries
+              run: |
+                  mkdir -p release-assets
+
+                  # Build for current platform
+                  mise exec -- cargo build --release
+
+                  # Create source tarball (excluding build artifacts and git)
+                  tar --exclude='.git' \
+                      --exclude='target' \
+                      --exclude='.uvx-install' \
+                      --exclude='javascript' \
+                      --exclude='cpp' \
+                      -czf release-assets/rust-template-${{ inputs.version_tag }}-source.tar.gz \
+                      .
+
+                  # Copy binary to release assets
+                  if [ -f target/release/rust-template ]; then
+                    cp target/release/rust-template release-assets/rust-template-${{ inputs.version_tag }}-$(uname -s)-$(uname -m)
+                  fi
+                  if [ -f target/release/rust-template.exe ]; then
+                    cp target/release/rust-template.exe release-assets/rust-template-${{ inputs.version_tag }}-windows.exe
+                  fi
+
+                  echo "Release assets created:"
+                  ls -lah release-assets/
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: ${{ inputs.version_tag }}
+                  name: Release ${{ inputs.version_tag }}
+                  body_path: CHANGELOG.md
+                  draft: false
+                  prerelease: ${{ inputs.prerelease }}
+                  files: release-assets/*
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

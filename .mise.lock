@@ -1,0 +1,23 @@
+[[tools."github:PowerShell/PowerShell"]]
+version = "7.5.4"
+backend = 'github:PowerShell/PowerShell[platforms={ linux-x64 = { asset_pattern = "powershell-*-linux-x64.tar.gz" }, macos-arm64 = { asset_pattern = "powershell-*-osx-arm64.tar.gz" }, windows-x64 = { asset_pattern = "PowerShell-*-win-x64.zip" } }]'
+
+[tools."github:PowerShell/PowerShell".platforms.windows-x64]
+checksum = "sha256:b40d192ae95ba6ccc4cc362ff4e1b18ca6fb5055bebbcd3920684e12701fa8f6"
+name = "PowerShell-7.5.4-win-x64.zip"
+size = 115200099
+url = "https://github.com/PowerShell/PowerShell/releases/download/v7.5.4/PowerShell-7.5.4-win-x64.zip"
+url_api = "https://api.github.com/repos/PowerShell/PowerShell/releases/assets/305232969"
+
+[[tools."github:koalaman/shellcheck"]]
+version = "0.11.0"
+backend = 'github:koalaman/shellcheck[platforms={ linux-x64 = { asset_pattern = "shellcheck-*.linux.armv6hf.tar.xz" }, macos-arm64 = { asset_pattern = "shellcheck-*.linux.x86_64.tar.xz" }, windows-x64 = { asset_pattern = "shellcheck-*.zip" } }]'
+
+[[tools.node]]
+version = "25.2.0"
+backend = "core:node"
+
+[tools.node.platforms.windows-x64]
+checksum = "sha256:d06b49148fa8a0f6d4f0fb9fb5c2a6b66a5a3c5db89a3b4a83448e18237375e1"
+size = 36699349
+url = "https://nodejs.org/dist/v25.2.0/node-v25.2.0-win-x64.zip"

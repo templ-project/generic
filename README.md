@@ -10,18 +10,16 @@
 [![Donate to this project using Patreon](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://patreon.com/dragoscirjan)
 [![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QBP6DEBJDEMV2&source=url)
 
-<img alt="GoLang logo" src="https://github.com/templ-project/generic/blob/master/logo-gnu-icon.svg?raw=true" width="20%" align="right" />
-
 > *Any fool can write code that a computer can understand. Good programmers write code that humans can understand.* – Martin Fowler
 
-> **generic** is a template, extendable for any project type that comes into your mind. 
-> 
+> **generic** is a template, extendable for any project type that comes into your mind.
+>
 > It is composed of
 > * A [Makefile](Makefile) with targets for configuring, building, testing, installing and uninstalling an application or module.
 > * A [release script](.script/release-tag.sh) capable of git tagging your releases (compatible with both *bash* and *powershell*)
 > * A [README](README.md) template to best describe your project
 > * And a set of [templates](.github) used by the most powerful and popular git repository managers on the market.
-> 
+>
 > **generic** is implemented so far by **[templ/go](/templ-project/go)** and **[templ/python](/templ-project/python)**
 
 ## Getting Started
@@ -153,8 +151,8 @@ One Paragraph of project description goes here
 
 <!--
 Insert Table of Contents Here
-This can be done using [AlanWalk.markdown-toc](https://marketplace.visualstudio.com/items?itemName=AlanWalk.markdown-toc) plugin, 
-which is also included in 
+This can be done using [AlanWalk.markdown-toc](https://marketplace.visualstudio.com/items?itemName=AlanWalk.markdown-toc) plugin,
+which is also included in
 [itmcdev.generic-extension-pack](https://marketplace.visualstudio.com/items?itemName=itmcdev.generic-extension-pack) extension pack.
 -->
 <!-- TOC -->
@@ -197,14 +195,14 @@ which is also included in
 
 ### Prereqiusites / Dependencies
 
-What things you need to install the software and how to install them (based on each OS type). 
+What things you need to install the software and how to install them (based on each OS type).
 
 #### For Windows
 ```bash
 # Give Examples
 
 npm install -g node-gyp windows-build-tools
-# Warning: Please note windows-build-tools will install MSVS which takes a 
+# Warning: Please note windows-build-tools will install MSVS which takes a
 # LONG amount of time.
 ```
 
