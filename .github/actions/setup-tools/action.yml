@@ -57,6 +57,13 @@ runs:
         path: |
           .venv
 
+    - uses: actions/cache@v4
+      if: ${{ runner.os == 'Windows' }}
+      with:
+        key: ${{ runner.os }}-${{ runner.arch }}-node-${{ hashFiles('package-lock.json') }}
+        path: |
+          node_modules
+
     # === mise install ===
     # === uv sync ===
     - name: Install mise tools
@@ -71,3 +78,7 @@ runs:
         # Install Python dependencies (mise will handle venv creation/activation)
         echo "Installing Python dependencies..."
         mise exec -- uv sync
+
+        # Install Node.js dependencies
+        echo "Installing Node.js dependencies..."
+        mise exec -- npm install
