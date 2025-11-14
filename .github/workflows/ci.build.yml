@@ -69,8 +69,7 @@ jobs:
           - task
     steps:
       - uses: actions/checkout@v4
-      # duplicate check only requires node setup
-      - uses: setup/node@v3
+      - uses: ./.github/actions/setup-tools
 
       - name: Run Tests
         env:
@@ -95,7 +94,8 @@ jobs:
     needs: [setup]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-tools
+      # duplicate check only requires node setup
+      - uses: setup/node@v3
 
       - name: Run duplicate check
         run: |
