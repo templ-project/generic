@@ -100,4 +100,4 @@ jobs:
       - name: Run duplicate check
         run: |
           npm install
-          task duplicate-check
+          npm run duplicate-check
