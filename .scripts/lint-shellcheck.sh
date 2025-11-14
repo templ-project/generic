@@ -55,7 +55,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Check if shellcheck is installed
-if ! command -v shellcheck &> /dev/null; then
+if ! command -v shellcheck >/dev/null 2>&1; then
   echo -e "${COLOR_RED}✗ ShellCheck is not installed${COLOR_RESET}" >&2
   echo "Install it: https://github.com/koalaman/shellcheck#installing" >&2
   exit 2
@@ -63,7 +63,7 @@ fi
 
 # Get list of shell scripts
 get_shell_scripts() {
-  if [[ "$STAGED_MODE" == true ]]; then
+  if [[ "$STAGED_MODE" == "true" ]]; then
     # Only get staged .sh files
     git diff --cached --name-only --diff-filter=ACM | grep '\.sh$' || true
   else
@@ -96,9 +96,9 @@ main() {
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
 
-    ((file_count++))
+    file_count=$((file_count + 1))
 
-    if [[ "$FIX_MODE" == true ]]; then
+    if [[ "$FIX_MODE" == "true" ]]; then
       # Apply fixes using shellcheck diff output
       local diff_output
       diff_output=$(shellcheck -x --severity=style --format=diff "$file" 2>&1) || true
@@ -138,8 +138,8 @@ main() {
   echo ""
   echo "Checked $file_count shell script(s)"
 
-  if [[ "$has_issues" == true ]]; then
-    if [[ "$FIX_MODE" == true ]]; then
+  if [[ "$has_issues" == "true" ]]; then
+    if [[ "$FIX_MODE" == "true" ]]; then
       echo -e "${COLOR_YELLOW}⚠ Some issues could not be auto-fixed${COLOR_RESET}"
       echo "Please review and fix them manually"
       exit 1

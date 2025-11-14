@@ -84,12 +84,14 @@ tasks:
     silent: true
 
   lint:powershell:
+    aliases: [lint:pwsh]
     cmds:
       - pwsh -File .scripts/lint-powershell.ps1 -Fix
     desc: "Lint PowerShell scripts using PSScriptAnalyzer"
     silent: false
 
   lint:shellcheck:
+    aliases: [lint:sh, lint:bash]
     cmds:
       - bash .scripts/lint-shellcheck.sh --fix
     desc: "Lint shell scripts using ShellCheck"
@@ -114,12 +116,14 @@ tasks:
     silent: true
 
   lint:check:powershell:
+    aliases: [lint:check:pwsh]
     cmds:
       - pwsh -File .scripts/lint-powershell.ps1
     desc: "Check PowerShell scripts using PSScriptAnalyzer"
     silent: false
 
   lint:check:shellcheck:
+    aliases: [lint:check:sh, lint:check:bash]
     cmds:
       - bash .scripts/lint-shellcheck.sh
     desc: "Check shell scripts using ShellCheck"

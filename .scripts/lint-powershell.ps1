@@ -28,6 +28,17 @@ $ErrorActionPreference = 'Stop'
 # Configuration
 # ============================================================================
 
+# Colors
+class Colors {
+  static [string] $Reset = "`e[0m"
+  static [string] $Red = "`e[31m"
+  static [string] $Green = "`e[32m"
+  static [string] $Yellow = "`e[33m"
+  static [string] $Gray = "`e[90m"
+  static [string] $White = "`e[37m"
+  static [string] $Cyan = "`e[36m"
+}
+
 # Folders to exclude from linting
 $IGNORED_FOLDERS = @(
   'node_modules',
@@ -61,28 +72,43 @@ function Test-PSScriptAnalyzerInstalled {
 
 # Install PSScriptAnalyzer if missing
 function Install-PSScriptAnalyzerModule {
-  Write-Host "Installing PSScriptAnalyzer..." -ForegroundColor Yellow
+  Write-Host "$([Colors]::Yellow)Installing PSScriptAnalyzer...$([Colors]::Reset)"
   try {
     Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -SkipPublisherCheck -ErrorAction Stop
-    Write-Host "✓ PSScriptAnalyzer installed successfully" -ForegroundColor Green
+    Write-Host "$([Colors]::Green)✓ PSScriptAnalyzer installed successfully$([Colors]::Reset)"
   }
   catch {
-    Write-Host "✗ Failed to install PSScriptAnalyzer: $_" -ForegroundColor Red
+    Write-Host "$([Colors]::Red)✗ Failed to install PSScriptAnalyzer: $_$([Colors]::Reset)"
     exit 2
   }
 }
 
 # Get list of PowerShell scripts
 function Get-PowerShellScript {
+  # Use current working directory as the repository root
+  # The task system ensures we're running from the repo root
+  $repoRoot = Get-Location
+
   if ($Staged) {
     # Get only staged .ps1 files
     $stagedFiles = git diff --cached --name-only --diff-filter=ACM | Where-Object { $_ -match '\.ps1$' }
-    return $stagedFiles | ForEach-Object { Get-Item $_ -ErrorAction SilentlyContinue }
+    return $stagedFiles | ForEach-Object {
+      $filePath = Join-Path $repoRoot $_
+      if (Test-Path $filePath) {
+        Get-Item $filePath
+      }
+    }
   }
   else {
     # Get all .ps1 files excluding ignored directories
-    $pattern = '[\\/](' + ($IGNORED_FOLDERS -join '|') + ')[\\/]'
-    return Get-ChildItem -Recurse -Filter *.ps1 -File | Where-Object {
+    # Build pattern that works with both / and \ separators
+    $pattern = '[/\\](' + ($IGNORED_FOLDERS -join '|') + ')[/\\]'
+
+    # Use -Include instead of -Filter for cross-platform compatibility
+    # Use -Force to include hidden files/folders (those starting with .)
+    $allFiles = @(Get-ChildItem -Path $repoRoot -Recurse -Include *.ps1 -File -Force -ErrorAction SilentlyContinue)
+
+    return $allFiles | Where-Object {
       $_.FullName -notmatch $pattern
     }
   }
@@ -105,7 +131,7 @@ function Invoke-LintPowerShell {
   $scripts = Get-PowerShellScript
 
   if (-not $scripts -or $scripts.Count -eq 0) {
-    Write-Host "No PowerShell scripts found to lint" -ForegroundColor Yellow
+    Write-Host "$([Colors]::Yellow)No PowerShell scripts found to lint$([Colors]::Reset)"
     exit 0
   }
 
@@ -132,12 +158,11 @@ function Invoke-LintPowerShell {
         $fixes = Invoke-ScriptAnalyzer @params -ErrorAction SilentlyContinue
 
         if ($fixes) {
-          Write-Host "  Fixed: $($script.FullName)" -ForegroundColor Cyan
-          Write-Host "    Fixed $($fixes.Count) issue(s)" -ForegroundColor White
+          Write-Host "$([Colors]::White)  Fixed: $($script.Name)$([Colors]::Reset)"
         }
       }
       catch {
-        Write-Host "  Warning: Could not apply fixes to $($script.FullName)" -ForegroundColor Yellow
+        Write-Host "$([Colors]::Yellow)  Warning: Could not apply fixes to $($script.Name)$([Colors]::Reset)"
       }
 
       # Check for remaining issues
@@ -146,11 +171,11 @@ function Invoke-LintPowerShell {
 
       if ($issues) {
         $hasIssues = $true
-        Write-Host "  Remaining issues in: $($script.FullName)" -ForegroundColor Yellow
+        Write-Host "$([Colors]::White)$($script.Name)$([Colors]::Reset)"
         $issues | Format-Table -Property Line, Severity, RuleName, Message -AutoSize | Out-String | Write-Host
       }
       else {
-        Write-Host "  OK: $($script.FullName)" -ForegroundColor Gray
+        Write-Host "$([Colors]::Gray)  OK: $($script.Name)$([Colors]::Reset)"
       }
     }
     else {
@@ -166,12 +191,12 @@ function Invoke-LintPowerShell {
 
       if ($issues) {
         $hasIssues = $true
-        Write-Host "$($script.FullName)" -ForegroundColor White
+        Write-Host "$([Colors]::White)$($script.Name)$([Colors]::Reset)"
         $issues | Format-Table -Property Line, Severity, RuleName, Message -AutoSize | Out-String | Write-Host
         Write-Host ""
       }
       else {
-        Write-Host "  OK: $($script.FullName)" -ForegroundColor Gray
+        Write-Host "$([Colors]::Gray)  OK: $($script.Name)$([Colors]::Reset)"
       }
     }
   }
@@ -182,18 +207,18 @@ function Invoke-LintPowerShell {
   if ($hasIssues) {
     if ($Fix) {
       Write-Host ""
-      Write-Host "⚠ Some issues could not be auto-fixed" -ForegroundColor Yellow
-      Write-Host "Review the remaining issues above and fix them manually"
+      Write-Host "$([Colors]::Yellow)⚠ Some issues could not be auto-fixed$([Colors]::Reset)"
+      Write-Host "Please review and fix them manually"
       exit 1
     }
     else {
-      Write-Host "✗ PSScriptAnalyzer found issues" -ForegroundColor Red
+      Write-Host "$([Colors]::Red)✗ PSScriptAnalyzer found issues$([Colors]::Reset)"
       Write-Host "Run with -Fix to apply automatic fixes: .\lint-powershell.ps1 -Fix"
       exit 1
     }
   }
   else {
-    Write-Host "✓ All PowerShell scripts are clean" -ForegroundColor Green
+    Write-Host "$([Colors]::Green)✓ All PowerShell scripts are clean$([Colors]::Reset)"
     exit 0
   }
 }
