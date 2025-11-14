@@ -99,5 +99,5 @@ jobs:
 
       - name: Run duplicate check
         run: |
-          mise exec -- npm install
-          mise exec -- task duplicate-check
+          npm install
+          task duplicate-check
