@@ -101,16 +101,41 @@ function Get-PowerShellScript {
   }
   else {
     # Get all .ps1 files excluding ignored directories
-    # Build pattern that works with both / and \ separators
-    $pattern = '[/\\](' + ($IGNORED_FOLDERS -join '|') + ')[/\\]'
+    # Use a custom recursive function for better performance - it skips excluded dirs entirely
+    $results = [System.Collections.ArrayList]::new()
 
-    # Use -Include instead of -Filter for cross-platform compatibility
-    # Use -Force to include hidden files/folders (those starting with .)
-    $allFiles = @(Get-ChildItem -Path $repoRoot -Recurse -Include *.ps1 -File -Force -ErrorAction SilentlyContinue)
+    function Get-PowerShellScriptsRecursive {
+      param([string]$path, [System.Collections.ArrayList]$resultList)
 
-    return $allFiles | Where-Object {
-      $_.FullName -notmatch $pattern
+      try {
+        # Get all items in current directory (non-recursive)
+        $items = Get-ChildItem -Path $path -Force -ErrorAction SilentlyContinue
+
+        foreach ($item in $items) {
+          # Skip if folder name is in ignored list
+          if ($item.PSIsContainer -and $IGNORED_FOLDERS -contains $item.Name) {
+            continue
+          }
+
+          # If it's a .ps1 file, add it
+          if (-not $item.PSIsContainer -and $item.Extension -eq '.ps1') {
+            [void]$resultList.Add($item)
+          }
+
+          # If it's a directory (and not ignored), recurse into it
+          if ($item.PSIsContainer) {
+            Get-PowerShellScriptsRecursive -path $item.FullName -resultList $resultList
+          }
+        }
+      }
+      catch {
+        # Silently skip directories we can't access (permission denied, etc.)
+        Write-Verbose "Skipping inaccessible path: $path - $_"
+      }
     }
+
+    Get-PowerShellScriptsRecursive -path $repoRoot -resultList $results
+    return $results.ToArray()
   }
 }
 

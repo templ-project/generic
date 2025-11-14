@@ -4,10 +4,10 @@ on:
   workflow_call:
     inputs:
       os:
-        description: "Operating system to run on"
+        description: 'Operating system to run on'
         required: false
         type: string
-        default: "ubuntu-latest"
+        default: 'ubuntu-latest'
 
 jobs:
   # Setup job runs once to populate mise cache for parallel jobs

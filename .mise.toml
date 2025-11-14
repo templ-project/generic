@@ -39,3 +39,10 @@ windows-x64 = { asset_pattern = "PowerShell-*-win-x64.zip" }
 #
 [tools.node]
 version = "latest"
+
+# Python and package manager
+#
+[tools.python]
+version = "3.11" # Will install 3.11 or above based on availability
+[tools.uv]
+version = "latest"

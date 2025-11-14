@@ -1,7 +1,7 @@
-name: "Setup Development Tools"
-description: "Install Task, mise, and project tools with caching"
+name: 'Setup Development Tools'
+description: 'Install Task, mise, and project tools with caching'
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     # === task ===
     - name: Setup Task

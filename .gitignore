@@ -19,3 +19,5 @@ __pycache__/
 # PSScriptAnalyzer
 .github/scripts/install-psscriptanalyzer.ps1
 
+# mkdocs
+docs-html/

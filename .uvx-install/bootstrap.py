@@ -126,17 +126,7 @@ def update_readme_metadata(readme_path, project_name):
 
     # Update title and description
     content = re.sub(
-        r'    # Update title and description
-    content = re.sub(
         r'# Templ Generic',
-        f'# {project_title}',
-        content
-    )
-    content = re.sub(
-        r'> \*\*generic\*\* is a template, extendable for any project type',
-        f'> {project_title} - A project based on the generic template',
-        content
-    )',
         f'# {project_title}',
         content
     )

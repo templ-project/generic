@@ -1,8 +1,10 @@
 {
   "devDependencies": {
+    "@jscpd/badge-reporter": "^4.0.1",
     "@templ-project/eslint": "^1.2.2",
     "@templ-project/prettier": "^1.0.6",
     "husky": "^9.1.7",
+    "jscpd": "^4.0.5",
     "lint-staged": "^16.2.6"
   }
 }

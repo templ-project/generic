@@ -1,7 +1,7 @@
-version: "3"
+version: '3'
 
 vars:
-  __TF_HEADER_LINE: "=============================================================="
+  __TF_HEADER_LINE: '=============================================================='
 
 tasks:
   # ==========================================================================
@@ -9,7 +9,7 @@ tasks:
   # ==========================================================================
 
   print:env:
-    desc: "Print current build environment variables"
+    desc: 'Print current build environment variables'
     cmds:
       - cmd: env
         platforms: [darwin, linux]
@@ -17,7 +17,7 @@ tasks:
         platforms: [windows]
 
   build:
-    desc: "Build project (system: {{.CPP_BUILD_SYSTEM}}, type: {{.CPP_BUILD_TYPE}})"
+    desc: 'Build project (system: {{.CPP_BUILD_SYSTEM}}, type: {{.CPP_BUILD_TYPE}})'
     cmds:
       - task: print:env
       - cmd: echo "Building ..."
@@ -27,7 +27,7 @@ tasks:
   # ============================================================================
 
   clean:
-    desc: "Clean all build artifacts"
+    desc: 'Clean all build artifacts'
     cmds:
       - cmd: echo "Cleaning ..."
 
@@ -36,10 +36,9 @@ tasks:
   # ============================================================================
 
   format:
-    desc: "Format code and fix issues"
-    deps:
-      - task: format:prettier
+    desc: 'Format code and fix issues'
     cmds:
+      - task: format:prettier
       - cmd: echo "✅ Code format completed"
 
   format:prettier:
@@ -47,14 +46,13 @@ tasks:
       # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
       # - npx prettier --write "./**/*.{json,toml,yaml,yml}"
       - npx prettier --write "./**/*.{json,yaml,yml}"
-    desc: "Format code using Prettier"
+    desc: 'Format code using Prettier'
     silent: true
 
   format:check:
-    desc: "Check code formatting without fixing"
-    deps:
-      - task: format:check:prettier
+    desc: 'Check code formatting without fixing'
     cmds:
+      - task: format:check:prettier
       - cmd: echo "✅ Code format check completed"
 
   format:check:prettier:
@@ -62,16 +60,15 @@ tasks:
       # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
       # - npx prettier --check "./**/*.{json,toml,yaml,yml}"
       - npx prettier --check "./**/*.{json,yaml,yml}"
-    desc: "Check code formatting using Prettier"
+    desc: 'Check code formatting using Prettier'
     silent: true
 
   lint:
-    desc: "Run linter and fix issues"
-    deps:
+    desc: 'Run linter and fix issues'
+    cmds:
       - task: lint:eslint
       - task: lint:powershell
       - task: lint:shellcheck
-    cmds:
       - cmd: echo "✅ Linting completed"
 
   lint:eslint:
@@ -80,30 +77,29 @@ tasks:
       # - npx eslint --fix "./**/*.{json,toml,yaml,yml}"
       - npx eslint --fix "./**/*.{json,yaml,yml}"
       - echo "- ✅ eslint lint completed"
-    desc: "Lint code using ESLint"
+    desc: 'Lint code using ESLint'
     silent: true
 
   lint:powershell:
     aliases: [lint:pwsh]
     cmds:
       - pwsh -File .scripts/lint-powershell.ps1 -Fix
-    desc: "Lint PowerShell scripts using PSScriptAnalyzer"
+    desc: 'Lint PowerShell scripts using PSScriptAnalyzer'
     silent: false
 
   lint:shellcheck:
     aliases: [lint:sh, lint:bash]
     cmds:
       - bash .scripts/lint-shellcheck.sh --fix
-    desc: "Lint shell scripts using ShellCheck"
+    desc: 'Lint shell scripts using ShellCheck'
     silent: false
 
   lint:check:
-    desc: "Run linter without fixing"
-    deps:
+    desc: 'Run linter without fixing'
+    cmds:
       - task: lint:check:eslint
       - task: lint:check:powershell
       - task: lint:check:shellcheck
-    cmds:
       - cmd: echo "✅ Linting check completed"
 
   lint:check:eslint:
@@ -112,36 +108,35 @@ tasks:
       # - npx eslint "./**/*.{json,toml,yaml,yml}"
       - npx eslint "./**/*.{json,yaml,yml}"
       - echo "- ✅ eslint lint check completed"
-    desc: "Check code using ESLint"
+    desc: 'Check code using ESLint'
     silent: true
 
   lint:check:powershell:
     aliases: [lint:check:pwsh]
     cmds:
       - pwsh -File .scripts/lint-powershell.ps1
-    desc: "Check PowerShell scripts using PSScriptAnalyzer"
+    desc: 'Check PowerShell scripts using PSScriptAnalyzer'
     silent: false
 
   lint:check:shellcheck:
     aliases: [lint:check:sh, lint:check:bash]
     cmds:
       - bash .scripts/lint-shellcheck.sh
-    desc: "Check shell scripts using ShellCheck"
+    desc: 'Check shell scripts using ShellCheck'
     silent: false
 
   duplicate-check:
     cmds:
-      - "[ ! -d ./node_modules ] && npm install jscpd @jscpd/badge-reporter"
-      - npx jscpd src/ include/
+      - npx -y jscpd src/
       - git add .jscpd/jscpd-badge.svg 2>/dev/null || true
-    desc: "Check for duplicate code using jscpd"
+    desc: 'Check for duplicate code using jscpd'
 
   # ============================================================================
   # Test Tasks
   # ============================================================================
 
   test:
-    desc: "Run tests (system: {{.CPP_BUILD_SYSTEM}})"
+    desc: 'Run tests (system: {{.CPP_BUILD_SYSTEM}})'
     cmds:
       - task: build
       - cmd: echo "Testing ..."
@@ -149,7 +144,7 @@ tasks:
   test:gen-coverage:
     cmds:
       - cmd: echo "Generating coverage report ..."
-    desc: "Generate test coverage report"
+    desc: 'Generate test coverage report'
     silent: true
 
   # ============================================================================
@@ -157,14 +152,14 @@ tasks:
   # ============================================================================
 
   run:
-    desc: "Run application"
+    desc: 'Run application'
     deps:
       - task: build
     cmds:
       - cmd: echo "Running ..."
 
   debug:
-    desc: "Run application with debugger (gdb on Linux/macOS)"
+    desc: 'Run application with debugger (gdb on Linux/macOS)'
     cmds:
       - task: Build
       - cmd: echo "Running (Debug mode)... "
@@ -174,22 +169,22 @@ tasks:
   # ============================================================================
 
   docs:
-    desc: "Build documentation"
+    desc: 'Build documentation'
     cmds:
-      - mkdocs build
+      - uv run mkdocs build
 
   docs:serve:
-    desc: "Serve documentation locally with live reload"
+    desc: 'Serve documentation locally with live reload'
     cmds:
       - |
         echo "📚 Starting documentation server..."
         echo "📖 Open http://127.0.0.1:8000 in your browser"
-        mkdocs serve
+        uv run mkdocs serve
 
   docs:deploy:
-    desc: "Deploy documentation to GitHub Pages"
+    desc: 'Deploy documentation to GitHub Pages'
     cmds:
-      - mkdocs gh-deploy --force
+      - uv run mkdocs gh-deploy --force
 
   # ============================================================================
   # Validation Tasks
@@ -210,7 +205,7 @@ tasks:
           echo "✅ Validation successful"
           echo "{{.__TF_HEADER_LINE}}"
           echo ""
-    desc: "Run CI pipeline for specific build system and compiler"
+    desc: 'Run CI pipeline for specific build system and compiler'
     silent: true
 
   # ============================================================================
@@ -218,7 +213,7 @@ tasks:
   # ============================================================================
 
   uv:refresh:
-    desc: "Refresh all Python packages (update dependencies)"
+    desc: 'Refresh all Python packages (update dependencies)'
     cmds:
       - |
         echo "🔄 Refreshing Python packages..."
@@ -226,7 +221,7 @@ tasks:
         echo "✓ Packages refreshed"
 
   uv:sync:
-    desc: "Install Python dependencies (including pre-commit)"
+    desc: 'Install Python dependencies (including pre-commit)'
     cmds:
       - |
         echo "📦 Installing Python dependencies..."

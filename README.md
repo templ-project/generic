@@ -2,25 +2,47 @@
 
 [![HitCount](http://hits.dwyl.com/templ-project/generic.svg)](http://hits.dwyl.com/templ-project/generic)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/templ-project/generic/issues)
-[![TravisCI](https://travis-ci.org/templ-project/generic.svg?branch=master)](https://travis-ci.org/templ-project/generic)
-<!-- CI Badges -->
-<!-- [![CircleCI](https://circleci.com/gh/templ-project/generic.svg?style=shield)](https://circleci.com/gh/templ-project/generic) -->
 
 <!-- Donation Badges -->
+
 [![Donate to this project using Patreon](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://patreon.com/dragoscirjan)
 [![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QBP6DEBJDEMV2&source=url)
 
-> *Any fool can write code that a computer can understand. Good programmers write code that humans can understand.* – Martin Fowler
+> _Any fool can write code that a computer can understand. Good programmers write code that humans can understand._ – Martin Fowler
 
-> **generic** is a template, extendable for any project type that comes into your mind.
+> **generic** is a modern, cross-platform template for any project type.
 >
-> It is composed of
-> * A [Makefile](Makefile) with targets for configuring, building, testing, installing and uninstalling an application or module.
-> * A [release script](.script/release-tag.sh) capable of git tagging your releases (compatible with both *bash* and *powershell*)
-> * A [README](README.md) template to best describe your project
-> * And a set of [templates](.github) used by the most powerful and popular git repository managers on the market.
+> ## Features
 >
-> **generic** is implemented so far by **[templ/go](/templ-project/go)** and **[templ/python](/templ-project/python)**
+> ### Build & Task Management
+>
+> - **[Taskfile](Taskfile.yml)** - Modern task runner with targets for building, testing, linting, and deployment
+> - **[mise](https://mise.jdx.dev/)** - Development environment and tool version management
+>
+> ### Code Quality & Linting
+>
+> - **Shell Script Linting** - [ShellCheck](.scripts/lint-shellcheck.sh) integration with auto-fix support
+> - **PowerShell Linting** - [PSScriptAnalyzer](.scripts/lint-powershell.ps1) with cross-platform support
+> - **JSON/YAML/Markdown** - ESLint and Prettier integration
+> - **Pre-commit Hooks** - Automated linting via [Husky](.husky/) and [lint-staged](.lintstagedrc.yml)
+> - **Duplicate Code Detection** - jscpd integration with badge generation
+>
+> ### Git Integration
+>
+> - **GitHub Templates** - Issue and pull request templates in [.github](.github/)
+> - **Pre-commit Validation** - Automatic code quality checks before commits
+> - **Staged File Linting** - Only lint files you're committing
+>
+> ### Quick Start with UVX
+>
+> - **Bootstrap Script** - One-command project scaffolding via `uvx`
+> - **Zero Configuration** - Automatic project name detection and setup
+>
+> ### Cross-Platform Support
+>
+> - Works on **Linux**, **macOS**, and **Windows** (including WSL)
+> - Shell scripts compatible with bash/sh
+> - PowerShell scripts compatible with PowerShell Core (pwsh)
 
 ## Getting Started
 
@@ -51,6 +73,39 @@ None for now. -->
 
 ### Installation
 
+#### Quick Start with UVX (Recommended)
+
+Bootstrap a new project with a single command using `uvx`:
+
+```bash
+# Bootstrap in current directory
+uvx --from git+https://github.com/templ-project/generic.git bootstrap .
+
+# Bootstrap in specific directory
+uvx --from git+https://github.com/templ-project/generic.git bootstrap ./my-project
+
+# Bootstrap with custom project name
+uvx --from git+https://github.com/templ-project/generic.git bootstrap --project-name my-awesome-project ./target-dir
+```
+
+The bootstrap script will:
+
+- Clone the template repository
+- Remove template-specific files (.git, bootstrap scripts, etc.)
+- Update project metadata (package.json, README.md)
+- Set up your project structure
+
+After bootstrapping:
+
+```bash
+cd your-project
+git init
+git add .
+git commit -m "Initial commit"
+```
+
+#### Manual Installation
+
 1. Clone the project
 2. Remove .git folder
 3. Re-initialize your git repository
@@ -68,8 +123,65 @@ git push origin master
 
 ### Development
 
-Adapt your `Makefile` to fit your needs.
+#### Prerequisites
 
+- [mise](https://mise.jdx.dev/) - For tool version management
+- [Task](https://taskfile.dev/) - Task runner (installed via mise)
+- [Node.js](https://nodejs.org/) - For linting tools (installed via mise)
+- [PowerShell Core](https://github.com/PowerShell/PowerShell) - For cross-platform scripting (installed via mise)
+
+#### Setup Development Environment
+
+```bash
+# Install mise (if not already installed)
+curl https://mise.run | sh
+
+# Install all required tools
+mise install
+
+# Install Node.js dependencies
+npm install
+
+# Install pre-commit hooks
+npx husky install
+```
+
+#### Available Tasks
+
+```bash
+# Code formatting
+task format              # Format all code (prettier)
+task format:check        # Check formatting without fixing
+
+# Linting
+task lint                # Lint all code (eslint, shellcheck, powershell)
+task lint:shellcheck     # Lint shell scripts only
+task lint:powershell     # Lint PowerShell scripts only
+task lint:eslint         # Lint JSON/YAML/Markdown only
+
+# Check mode (no auto-fix)
+task lint:check          # Check all without fixing
+task lint:check:shellcheck
+task lint:check:powershell
+task lint:check:eslint
+
+# Code quality
+task duplicate-check     # Check for duplicate code
+
+# Full validation
+task validate            # Run complete CI pipeline
+```
+
+#### Pre-commit Hooks
+
+The template includes automatic pre-commit validation via Husky:
+
+- **lint-staged** - Lints only staged files
+- **shellcheck** - Validates shell scripts
+- **powershell** - Validates PowerShell scripts
+- **duplicate-check** - Detects code duplication
+
+Configure what runs in [.lintstagedrc.yml](.lintstagedrc.yml) and [.husky/pre-commit](.husky/pre-commit).
 
 ### Testing
 
@@ -83,7 +195,7 @@ Adapt `release` directive in your Makefile to fit your needs.
 
 ## Authors
 
-* [Dragos Cirjan](mailto:dragos.cirjan@gmail.com) - Initial work
+- [Dragos Cirjan](mailto:dragos.cirjan@gmail.com) - Initial work
 
 ## Issues / Support
 
@@ -106,25 +218,14 @@ Also see this tool for automatically generating them: https://www.npmjs.com/pack
 
 <hr />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Project Title
 
 <!-- Set of shield/badges explaining where to find more information about the project (i.e. Where to look for unit test reports, where to see code coverage and code scans, etc.). You can find a lot of them on https://shields.io/) -->
 
 <!-- CI Badges -->
+
 [![TravisCI](https://travis-ci.org/templ-project/generic.svg?branch=master)](https://travis-ci.org/templ-project/generic)
+
 <!-- [![CircleCI](https://circleci.com/gh/templ-project/generic.svg?style=shield)](https://circleci.com/gh/templ-project/generic) -->
 
 <!-- Sonar Badges -->
@@ -160,10 +261,16 @@ which is also included in
 - [Templ Generic](#templ-generic)
   - [Getting Started](#getting-started)
     - [Prereqiusites / Dependencies](#prereqiusites--dependencies)
-        - [For Windows](#for-windows)
-        - [For Linux/Unix/OSX](#for-linuxunixosx)
+      - [For Windows](#for-windows)
+      - [For Linux/Unix/OSX](#for-linuxunixosx)
     - [Installation](#installation)
+      - [Quick Start with UVX (Recommended)](#quick-start-with-uvx-recommended)
+      - [Manual Installation](#manual-installation)
     - [Development](#development)
+      - [Prerequisites](#prerequisites)
+      - [Setup Development Environment](#setup-development-environment)
+      - [Available Tasks](#available-tasks)
+      - [Pre-commit Hooks](#pre-commit-hooks)
     - [Testing](#testing)
     - [Deployment](#deployment)
   - [Authors](#authors)
@@ -198,6 +305,7 @@ which is also included in
 What things you need to install the software and how to install them (based on each OS type).
 
 #### For Windows
+
 ```bash
 # Give Examples
 
@@ -223,7 +331,6 @@ Describe a list of known issues, and how to bypass them.
 
 A step by step series of examples that tell you how to get a development env running
 
-
 #### Say what the step will be
 
 ```
@@ -248,10 +355,10 @@ give examples
 
 ### Testing
 
-
 Explain how to run the automated tests for this system
 
 #### Break down into (at least) unit tests
+
 Explain what these tests test and why
 
 ```
@@ -259,6 +366,7 @@ Give an example
 ```
 
 #### and end to end tests
+
 Explain what these tests test and why
 
 ```
@@ -278,7 +386,8 @@ Give an example
 Add additional notes about how to deploy this on a live system
 
 ## Authors
-* [Dragos Cirjan](mailto:dragos.cirjan@gmail.com) - Initial work - [PurpleBooth](#link-to-change)
+
+- [Dragos Cirjan](mailto:dragos.cirjan@gmail.com) - Initial work - [PurpleBooth](#link-to-change)
 
 See also the list of contributors who participated in this project.
 
