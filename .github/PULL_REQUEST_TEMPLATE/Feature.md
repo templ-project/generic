@@ -1,41 +1,20 @@
 ---
-name: 🙋 New Feature
-about: Do you want to add something to Template?
+name: ✨ New Feature
+about: Add a new feature or capability
 ---
-<!---
-Thanks for filing a pull request 😄 ! Before you submit, please read the following:
 
-Search open/closed issues before submitting since someone might have pushed the same thing before!
--->
+## What does this feature do?
 
-# ✨ New Feature
+<!-- Brief description of the new feature -->
 
-## 📖 Description
+## Related to
 
-<!---
-Provide some background and a description of your work.
--->
+<!-- Closes #123 -->
 
-### 🎫 Issues
+## Implementation notes
 
-<!---
-* List and link relevant issues here.
--->
+<!-- Any important details reviewers should know -->
 
-## 👩‍💻 Reviewer Notes
+## Testing
 
-<!---
-Provide some notes for reviewers to help them provide targeted feedback.
--->
-
-## 📑 Test Plan
-
-<!---
-Please provide a summary of the tests affected by this work and any unique strategies employed in testing the feature.
--->
-
-## ⏭ Next Steps
-
-<!---
-If there is relevant follow-up work to this PR, please list any existing issues or provide brief descriptions of what you would like to do next.
--->
+<!-- How did you test this feature? -->

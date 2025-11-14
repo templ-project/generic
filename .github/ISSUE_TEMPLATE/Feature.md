@@ -1,36 +1,20 @@
 ---
-name: 🙋 Feature Request
-about: Want us to add something to our project?
+name: ✨ Feature Request
+about: Suggest a new feature or improvement
 ---
 
-<!---
-Thanks for filing an issue 😄 ! Before you submit, please read the following:
+## What feature would you like?
 
-Search open/closed issues before submitting since someone might have asked the same thing before!
--->
+<!-- Clear description of the feature -->
 
-# 🙋 Feature Request
+## Why is this needed?
 
-<!--- Provide a general summary of the issue here -->
+<!-- What problem does it solve? -->
 
-## 🤔 Expected Behavior
+## Possible solution
 
-<!--- Tell us how the feature should work -->
+<!-- Optional: any ideas on how to implement this? -->
 
-## 😯 Current Behavior
+## Examples
 
-<!--- Explain the difference from current behavior -->
-
-## 💁 Possible Solution
-
-<!--- Ideas how to implement this feature or a similar solution/workaround that already exists -->
-
-## 🔦 Context
-
-<!--- How has this issue affected you? What are you trying to accomplish? -->
-
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
-
-## 💻 Examples
-
-<!-- Examples help us understand the requested feature better -->
+<!-- Optional: examples from other projects, mockups, etc. -->

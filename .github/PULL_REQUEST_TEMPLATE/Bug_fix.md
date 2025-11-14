@@ -1,60 +1,21 @@
 ---
 name: 🐛 Bug Fix
-about: Did you fix something that did not work as expected?
+about: Fix something that isn't working
 ---
 
-<!---
-Thanks for filing a pull request 😄 ! Before you submit, please read the following:
+## What bug does this fix?
 
-Search open/closed similar issues and pull requests before submitting since someone might have pushed the same thing before!
--->
+<!-- Brief description of the bug -->
 
-# 🐛 Bug Fix
+## Closes
 
-## 📖 Description
+<!-- Fixes #123 -->
 
-<!---
-Provide some background and a description of the bug being fixed.
--->
+## How did you fix it?
 
-### 🎫 Issues
+<!-- Explain your solution -->
 
-<!---
-* List and link relevant issues here.
--->
+## Testing
 
-## 💁 Your Solution
-
-<!--- Describe how you fixed the bug -->
-
-## 👩‍💻 Reviewer Notes
-
-<!---
-Provide some notes for reviewers to help them provide targeted feedback.
--->
-
-## 📑 Test Plan
-
-<!---
-Please provide a summary of the tests affected by this work and any unique strategies employed in testing the fixes.
--->
-
-## ⏭ Next Steps
-
-<!---
-If there is relevant follow-up work to this PR, please list any existing issues or provide brief descriptions of what you would like to do next.
--->
-
-## 🌍 Your Environment
-
-<!--- Include as many relevant details about the environment you experienced the bug in -->
-
-| Software         | Version(s) |
-| ---------------- | ---------- |
-| Template         |
-| Language         |
-| Browser          |
-| Bundler          |
-| Operating System |
-| NPM/Node/Yarn    |
+<!-- How did you verify the fix works? -->
 

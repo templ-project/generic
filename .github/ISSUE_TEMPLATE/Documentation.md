@@ -1,10 +1,16 @@
 ---
 name: 📚 Documentation
-about: Find an inaccuracy in the documentation or something missing?
+about: Report missing or incorrect documentation
 ---
 
-<!---
-Thanks for filing an issue 😄 ! Before you submit, please read the following:
+## What's wrong with the docs?
 
-Search open/closed issues before submitting since someone might have asked the same thing before!
--->
+<!-- Describe the issue -->
+
+## Where is it?
+
+<!-- Link or file path -->
+
+## What should it say?
+
+<!-- Optional: suggest the correct content -->

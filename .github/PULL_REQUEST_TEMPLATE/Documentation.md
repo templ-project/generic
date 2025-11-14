@@ -1,30 +1,16 @@
 ---
 name: 📚 Documentation
-about: Fixing or adding new documentation for Template?
+about: Improve or add documentation
 ---
 
-<!---
-Thanks for filing a pull request 😄 ! Before you submit, please read the following:
+## What docs are you updating?
 
-Search open/closed issues before submitting since someone might have pushed the same thing before!
--->
+<!-- Brief description -->
 
-# ✨ Documentation
+## Related to
 
-## 📖 Description
+<!-- Closes #123 -->
 
-<!---
-Provide some background and a description of your work.
--->
+## Summary of changes
 
-### 🎫 Issues
-
-<!---
-* List and link relevant issues here.
--->
-
-## 👩‍💻 Reviewer Notes
-
-<!---
-Provide some notes for reviewers to help them provide targeted feedback.
--->
+<!-- What did you add/fix/improve? -->

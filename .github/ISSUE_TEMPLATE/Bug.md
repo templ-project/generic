@@ -1,51 +1,28 @@
 ---
 name: 🐛 Bug Report
-about: Did something not work as expected?
+about: Something isn't working
 ---
 
-<!---
-Thanks for filing an issue 😄 ! Before you submit, please read the following:
+## Describe the bug
 
-Search open/closed issues before submitting since someone might have asked the same thing before!
--->
+<!-- A clear description of what the bug is -->
 
-# 🐛 Bug Report
+## How to reproduce
 
-<!--- Provide a general summary of the issue here -->
+1.
+2.
+3.
 
-## 🤔 Expected Behavior
+## Expected behavior
 
-<!--- Tell us what should happen -->
+<!-- What should happen instead? -->
 
-## 😯 Current Behavior
+## Screenshots or error messages
 
-<!--- Tell us what happens instead of the expected behavior -->
+<!-- If applicable -->
 
-<!--- If you are seeing an error, please include the full error message and stack trace -->
+## Environment
 
-## 💁 Possible Solution
-
-<!--- Not obligatory, but suggest a fix/reason for the bug -->
-
-## 🔦 Context
-
-<!--- How has this issue affected you? What are you trying to accomplish? -->
-
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
-
-## 💻 Code Sample
-
-<!-- Please provide a code repository, gist, code snippet or sample files to reproduce the issue -->
-
-## 🌍 Your Environment
-
-<!--- Include as many relevant details as possible about the environment you experienced the bug in -->
-
-| Software         | Version(s) |
-| ---------------- | ---------- |
-| Software         |
-| Language         |
-| Browser          |
-| Bundler          |
-| Operating System |
-| NPM/Node/Yarn    |
+- OS:
+- Version:
+- Other relevant info:

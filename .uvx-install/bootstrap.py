@@ -265,6 +265,14 @@ def bootstrap(target_path, project_name=None):
     mise_lock = target_path / ".mise.lock"
     remove_if_exists(mise_lock)
 
+    # Remove .cwai directory
+    cwai_dir = target_path / ".cwai"
+    remove_if_exists(cwai_dir)
+
+    # Remove .github/prompts directory
+    github_prompts_dir = target_path / ".github" / "prompts"
+    remove_if_exists(github_prompts_dir)
+
     print(f"\n📝 Updating project metadata for '{project_name}'...\n")
 
     # Update project files with the project name
