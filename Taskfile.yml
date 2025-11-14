@@ -221,19 +221,9 @@ tasks:
         echo "✓ Packages refreshed"
 
   uv:sync:
-    desc: 'Install Python dependencies (including pre-commit)'
+    desc: 'Install Python dependencies'
     cmds:
       - |
         echo "📦 Installing Python dependencies..."
         uv sync
-        echo "🪝 Installing pre-commit hooks..."
-        pre-commit install
         echo "✓ Python environment ready"
-
-  # valgrind:
-  #   desc: "Run application with Valgrind"
-  #   deps:
-  #     - task: build
-  #       vars: { CPP_BUILD_TYPE: "Debug" }
-  #   cmds:
-  #     - mise exec -- valgrind --leak-check=full --show-leak-kinds=all ./{{.CPP_BUILD_DIR}}/src/{{.CPP_PROJECT_NAME}}
