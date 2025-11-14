@@ -1,5 +1,5 @@
 mise exec -- npx lint-staged
 
-mise exec -- task lint:shellcheck lint:powershell duplicate-check
+mise exec -- task lint:shellcheck lint:powershell duplicate-check STAGED=1
 
 git add .

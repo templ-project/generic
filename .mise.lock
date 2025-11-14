@@ -21,3 +21,11 @@ backend = "core:node"
 checksum = "sha256:d06b49148fa8a0f6d4f0fb9fb5c2a6b66a5a3c5db89a3b4a83448e18237375e1"
 size = 36699349
 url = "https://nodejs.org/dist/v25.2.0/node-v25.2.0-win-x64.zip"
+
+[[tools.python]]
+version = "3.11.14"
+backend = "core:python"
+
+[[tools.uv]]
+version = "0.9.8"
+backend = "aqua:astral-sh/uv"
