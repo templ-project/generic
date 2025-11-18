@@ -23,32 +23,31 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
-  # TODO: Version bump and Release jobs are disabled for now because of a Bumpalicious issue
-  # # Version bump (only on main branch push, uses conventional commits)
-  # version:
-  #   name: Bump Version
-  #   if: |
-  #     github.event_name == 'push'
-  #     && github.ref == 'refs/heads/main'
-  #   # && (needs.build.result == 'success' || needs.build.result == 'skipped')
-  #   # needs: [build]
-  #   uses: ./.github/workflows/ci.version.yml
-  #   permissions:
-  #     contents: write
-  #     pull-requests: write
-  #   secrets:
-  #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  # Version bump (only on main branch push, uses conventional commits)
+  version:
+    name: Bump Version
+    if: |
+      github.event_name == 'push'
+      && github.ref == 'refs/heads/main'
+    needs: [build]
+    uses: ./.github/workflows/ci.version.yml
+    permissions:
+      contents: write
+      pull-requests: write
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-  # # Release (only on main branch push after version bump)
-  # release:
-  #   name: Create Release
-  #   if: |
-  #     github.event_name == 'push' && github.ref == 'refs/heads/main'
-  #     && (needs.version.result == 'success' || needs.version.result == 'skipped')
-  #   needs: [version]
-  #   uses: ./.github/workflows/ci.release.yml
-  #   permissions:
-  #     contents: write
-  #   with:
-  #     version_tag: ${{ needs.version.outputs.version_tag }}
-  #     prerelease: false
+  # Release (only on main branch push after version bump)
+  release:
+    name: Create Release
+    if: |
+      always()
+      && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && needs.version.result == 'success'
+    needs: [version]
+    uses: ./.github/workflows/ci.release.yml
+    permissions:
+      contents: write
+    with:
+      version_tag: ${{ needs.version.outputs.version_tag }}
+      prerelease: false
