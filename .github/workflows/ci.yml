@@ -41,13 +41,13 @@ jobs:
   release:
     name: Create Release
     if: |
-      always()
-      && github.event_name == 'push' && github.ref == 'refs/heads/main'
-      && needs.version.result == 'success'
+      github.event_name == 'push'
+      && github.ref == 'refs/heads/main'
+      && needs.version.outputs.version != ''
     needs: [version]
     uses: ./.github/workflows/ci.release.yml
     permissions:
       contents: write
     with:
-      version_tag: ${{ needs.version.outputs.version_tag }}
+      version: ${{ needs.version.outputs.version }}
       prerelease: false

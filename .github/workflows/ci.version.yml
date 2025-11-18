@@ -7,9 +7,9 @@ on:
         description: 'GitHub token for version bump and PR creation'
         required: true
     outputs:
-      version_tag:
-        description: 'The version tag that was created (e.g., v1.2.3)'
-        value: ${{ jobs.version.outputs.version_tag }}
+      version:
+        description: 'The version tag that was created (e.g., 1.2.3)'
+        value: ${{ jobs.version.outputs.version }}
 
 jobs:
   version:
@@ -18,7 +18,7 @@ jobs:
       contents: write
       pull-requests: write
     outputs:
-      version_tag: ${{ steps.bump.outputs.tag }}
+      version: ${{ steps.bump.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
