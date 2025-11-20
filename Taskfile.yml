@@ -4,44 +4,8 @@ vars:
   __TF_HEADER_LINE: '=============================================================='
   __TF_SEP: ' '
   __TF_MISE_E: 'mise trust; mise exec --'
-  __TF_PATH:
-    sh: |
-      mise exec -- {{if eq OS "windows"
-        }}pwsh -Command "\$Path = \$env:PATH; {{ .__TF_SEP
-          }}\$Path.Replace('\', '/').Replace('C:/', '/c/').Replace('//', '/')"{{else
-        }}echo $PATH{{end}}
 
 tasks:
-  # ==========================================================================
-  # Environment Setup
-  # ==========================================================================
-
-  ensure:bash:
-    desc: 'Exclude PowerShell scripts from task execution on non-Windows platforms'
-    cmds:
-      - cmd: |
-          bash_path=$(pwsh -Command '(Get-Item (Get-Command bash).Path).FullName | Select-String system32 | Select-String windows' 2>/dev/null)
-          if [ -n "$bash_path" ]; then
-            echo "⚠️  Windows System32 bash detected - not supported due to path inconsistencies"
-            echo "ℹ️  On 🪟 Windows, please, use 🌿 Git Bash or 🐧 WSL instead"
-            exit 1
-          fi
-          bash_path=$(pwsh -Command '(Get-Command bash).Path' 2>/dev/null)
-          if [ -z "$bash_path" ]; then
-            echo "⚠️  bash not found"
-            echo "ℹ️  On 🪟 Windows, please, use 🌿 Git Bash or 🐧 WSL instead"
-            exit 1
-          fi
-        platforms: [windows]
-      - cmd: |
-          if ! command -v bash >/dev/null 2>&1; then
-            echo "⚠️  bash not found"
-            echo "ℹ️  Please install bash to proceed"
-            exit 1
-          fi
-        platforms: [linux, darwin]
-    silent: true
-
   # ==========================================================================
   # Build Tasks
   # ==========================================================================
@@ -54,11 +18,10 @@ tasks:
         platforms: [darwin, linux]
       - cmd: |
           mise exec -- {{ .__TF_SEP
-            }}pwsh -Command '$BashPath=(Get-Command bash).Path; {{ .__TF_SEP
-            }}if ($BashPath) { & $BashPath -c 'env' } else { Get-ChildItem 'Env:' }' | sort
+            }}pwsh -Command '$BashPath=(Get-Command bash -ErrorAction SilentlyContinue).Path;{{ .__TF_SEP
+              }}if ($BashPath) { & $BashPath -c "env | sort" }{{ .__TF_SEP
+              }}else { Get-ChildItem "Env:" | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Value)" } }'
         platforms: [windows]
-    deps:
-      - task: ensure:bash
     desc: 'Print current build environment variables'
 
   build:
@@ -141,11 +104,15 @@ tasks:
   lint:shellcheck:
     aliases: [lint:sh, lint:bash]
     cmds:
-      - |
-        {{.__TF_MISE_E}} bash .scripts/lint-shellcheck.sh --fix {{if .STAGED}}--staged{{end}}
+      - cmd: |
+          {{.__TF_MISE_E}} bash .scripts/lint-shellcheck.sh --fix {{if .STAGED}}--staged{{end}}
+        platforms: [darwin, linux]
+      - cmd: |
+          {{.__TF_MISE_E}} pwsh -File .scripts/lint-shellcheck.ps1 -Fix {{if .STAGED}}-Staged{{end}}
+        platforms: [windows]
       - echo "- ✅ bash lint completed"
     desc: 'Lint shell scripts using ShellCheck'
-    silent: true
+    # silent: true
 
   lint:check:
     desc: 'Run linter without fixing'
