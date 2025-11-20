@@ -1,16 +1,18 @@
 # Ignore files that don't need formatting
-LICENSE
-.gitignore
 .editorconfig
 .eslintignore
-.jscpd.json
-.prettierignore
 .github/
+.gitignore
 .husky/
-node_modules/
-dist/
-coverage/
 .jscpd/
+.mise.lock
+.prettierignore
 *.lock
 *.log
-
+*.ps1
+*.sh
+coverage/
+dist/
+docs-html/
+LICENSE
+package-lock.json
