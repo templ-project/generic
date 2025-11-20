@@ -14,11 +14,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project.optional-dependencies]
-docs = [
-  "mkdocs>=1.5.0",
-  "mkdocs-material>=9.5.0",
-  "mkdocstrings[python]>=0.24.0",
-]
+docs = ["mkdocs>=1.5.0", "mkdocs-material>=9.5.0", "mkdocstrings[python]>=0.24.0"]
 
 [tool.hatch.build.targets.wheel]
 packages = [".uvx-install"]
@@ -27,8 +23,4 @@ packages = [".uvx-install"]
 ".uvx-install" = ".uvx-install"
 
 [dependency-groups]
-dev = [
-  "mkdocs>=1.5.0",
-  "mkdocs-material>=9.5.0",
-  "mkdocstrings[python]>=0.24.0",
-]
+dev = ["mkdocs>=1.5.0", "mkdocs-material>=9.5.0", "mkdocstrings[python]>=0.24.0"]
