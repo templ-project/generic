@@ -2,19 +2,64 @@ version: '3'
 
 vars:
   __TF_HEADER_LINE: '=============================================================='
+  __TF_SEP: ' '
+  __TF_MISE_E: 'mise trust; mise exec --'
+  __TF_PATH:
+    sh: |
+      mise exec -- {{if eq OS "windows"
+        }}pwsh -Command "\$Path = \$env:PATH; {{ .__TF_SEP
+          }}\$Path.Replace('\', '/').Replace('C:/', '/c/').Replace('//', '/')"{{else
+        }}echo $PATH{{end}}
 
 tasks:
+  # ==========================================================================
+  # Environment Setup
+  # ==========================================================================
+
+  ensure:bash:
+    desc: 'Exclude PowerShell scripts from task execution on non-Windows platforms'
+    cmds:
+      - cmd: |
+          bash_path=$(pwsh -Command '(Get-Item (Get-Command bash).Path).FullName | Select-String system32 | Select-String windows' 2>/dev/null)
+          if [ -n "$bash_path" ]; then
+            echo "⚠️  Windows System32 bash detected - not supported due to path inconsistencies"
+            echo "ℹ️  On 🪟 Windows, please, use 🌿 Git Bash or 🐧 WSL instead"
+            exit 1
+          fi
+          bash_path=$(pwsh -Command '(Get-Command bash).Path' 2>/dev/null)
+          if [ -z "$bash_path" ]; then
+            echo "⚠️  bash not found"
+            echo "ℹ️  On 🪟 Windows, please, use 🌿 Git Bash or 🐧 WSL instead"
+            exit 1
+          fi
+        platforms: [windows]
+      - cmd: |
+          if ! command -v bash >/dev/null 2>&1; then
+            echo "⚠️  bash not found"
+            echo "ℹ️  Please install bash to proceed"
+            exit 1
+          fi
+        platforms: [linux, darwin]
+    silent: true
+
   # ==========================================================================
   # Build Tasks
   # ==========================================================================
 
   print:env:
-    desc: 'Print current build environment variables'
+    env:
+      PATH: '{{.__TF_PATH}}'
     cmds:
-      - cmd: env
+      - cmd: mise exec -- env | sort
         platforms: [darwin, linux]
-      - cmd: powershell -Command "Get-ChildItem Env:"
+      - cmd: |
+          mise exec -- {{ .__TF_SEP
+            }}pwsh -Command '$BashPath=(Get-Command bash).Path; {{ .__TF_SEP
+            }}if ($BashPath) { & $BashPath -c 'env' } else { Get-ChildItem 'Env:' }' | sort
         platforms: [windows]
+    deps:
+      - task: ensure:bash
+    desc: 'Print current build environment variables'
 
   build:
     desc: 'Build project (system: {{.CPP_BUILD_SYSTEM}}, type: {{.CPP_BUILD_TYPE}})'
@@ -45,7 +90,8 @@ tasks:
     cmds:
       # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
       # - npx prettier --write "./**/*.{json,toml,yaml,yml}"
-      - npx prettier --write "./**/*.{json,yaml,yml}"
+      - |
+        {{.__TF_MISE_E}} npx prettier --write "./**/*.{json,yaml,yml}"
     desc: 'Format code using Prettier'
     silent: true
 
@@ -59,7 +105,8 @@ tasks:
     cmds:
       # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
       # - npx prettier --check "./**/*.{json,toml,yaml,yml}"
-      - npx prettier --check "./**/*.{json,yaml,yml}"
+      - |
+        {{.__TF_MISE_E}} npx prettier --check "./**/*.{json,yaml,yml}"
     desc: 'Check code formatting using Prettier'
     silent: true
 
@@ -71,11 +118,19 @@ tasks:
       - task: lint:shellcheck
       - cmd: echo "✅ Linting completed"
 
+  lint:staged:
+    desc: 'Run linter on staged files and fix issues'
+    cmds:
+      - |
+        mise exec -- npx -y lint-staged
+    silent: true
+
   lint:eslint:
     cmds:
       # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/34
       # - npx eslint --fix "./**/*.{json,toml,yaml,yml}"
-      - npx eslint --fix "./**/*.{json,yaml,yml}"
+      - |
+        {{.__TF_MISE_E}} npx eslint --fix "./**/*.{json,yaml,yml}"
       - echo "- ✅ eslint lint completed"
     desc: 'Lint code using ESLint'
     silent: true
@@ -83,14 +138,18 @@ tasks:
   lint:powershell:
     aliases: [lint:pwsh]
     cmds:
-      - pwsh -File .scripts/lint-powershell.ps1 -Fix {{if .STAGED}}-Staged{{end}}
+      - |
+        {{.__TF_MISE_E}} pwsh -File .scripts/lint-powershell.ps1 -Fix {{if .STAGED}}-Staged{{end}}
+      - echo "- ✅ pwsh lint completed"
     desc: 'Lint PowerShell scripts using PSScriptAnalyzer'
     silent: true
 
   lint:shellcheck:
     aliases: [lint:sh, lint:bash]
     cmds:
-      - bash .scripts/lint-shellcheck.sh --fix {{if .STAGED}}--staged{{end}}
+      - |
+        {{.__TF_MISE_E}} bash .scripts/lint-shellcheck.sh --fix {{if .STAGED}}--staged{{end}}
+      - echo "- ✅ bash lint completed"
     desc: 'Lint shell scripts using ShellCheck'
     silent: true
 
@@ -106,7 +165,8 @@ tasks:
     cmds:
       # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/34
       # - npx eslint "./**/*.{json,toml,yaml,yml}"
-      - npx eslint "./**/*.{json,yaml,yml}"
+      - |
+        {{.__TF_MISE_E}} npx eslint "./**/*.{json,yaml,yml}"
       - echo "- ✅ eslint lint check completed"
     desc: 'Check code using ESLint'
     silent: true
@@ -114,20 +174,25 @@ tasks:
   lint:check:powershell:
     aliases: [lint:check:pwsh]
     cmds:
-      - pwsh -File .scripts/lint-powershell.ps1 {{if .STAGED}}-Staged{{end}}
+      - |
+        {{.__TF_MISE_E}} pwsh -File .scripts/lint-powershell.ps1 {{if .STAGED}}-Staged{{end}}
+      - echo "- ✅ pwsh lint completed"
     desc: 'Check PowerShell scripts using PSScriptAnalyzer'
     silent: true
 
   lint:check:shellcheck:
     aliases: [lint:check:sh, lint:check:bash]
     cmds:
-      - bash .scripts/lint-shellcheck.sh {{if .STAGED}}--staged{{end}}
+      - |
+        {{.__TF_MISE_E}} bash .scripts/lint-shellcheck.sh {{if .STAGED}}--staged{{end}}
+      - echo "- ✅ bash lint completed"
     desc: 'Check shell scripts using ShellCheck'
     silent: true
 
   duplicate-check:
     cmds:
-      - npx -y jscpd src/
+      - |
+        {{.__TF_MISE_E}} npm run duplicate-check
       - git add .jscpd/jscpd-badge.svg 2>/dev/null || true
     desc: 'Check for duplicate code using jscpd'
 
@@ -171,7 +236,8 @@ tasks:
   docs:
     desc: 'Build documentation'
     cmds:
-      - uv run mkdocs build
+      - |
+        {{.__TF_MISE_E}} uv run mkdocs build
 
   docs:serve:
     desc: 'Serve documentation locally with live reload'
@@ -179,12 +245,13 @@ tasks:
       - |
         echo "📚 Starting documentation server..."
         echo "📖 Open http://127.0.0.1:8000 in your browser"
-        uv run mkdocs serve
+        {{.__TF_MISE_E}} uv run mkdocs serve
 
   docs:deploy:
     desc: 'Deploy documentation to GitHub Pages'
     cmds:
-      - uv run mkdocs gh-deploy --force
+      - |
+        {{.__TF_MISE_E}} uv run mkdocs gh-deploy --force
 
   # ============================================================================
   # Validation Tasks
@@ -209,21 +276,69 @@ tasks:
     silent: true
 
   # ============================================================================
-  # Python/UV Package Management Tasks
+  # Dependencies
   # ============================================================================
 
-  uv:refresh:
-    desc: 'Refresh all Python packages (update dependencies)'
+  deps:sync:
+    cmds:
+      - task: deps:sync:mise
+      - task: deps:sync:npm
+      - task: deps:sync:uv
+    desc: 'Install all project dependencies'
+
+  deps:sync:mise:
     cmds:
       - |
-        echo "🔄 Refreshing Python packages..."
-        uv sync --upgrade
-        echo "✓ Packages refreshed"
+        echo "📦 Installing Mise dependencies..."
+        mise trust && mise install --yes
+        echo "✓ Mise environment ready"
+    desc: 'Install Mise dependencies'
 
-  uv:sync:
-    desc: 'Install Python dependencies'
+  deps:sync:npm:
+    cmds:
+      - |
+        echo "📦 Installing NodeJs dependencies..."
+        {{.__TF_MISE_E}} npm install
+        echo "✓ NodeJs environment ready"
+    desc: 'Install NodeJs dependencies'
+
+  deps:sync:uv:
     cmds:
       - |
         echo "📦 Installing Python dependencies..."
-        uv sync
+        {{.__TF_MISE_E}} uv sync
         echo "✓ Python environment ready"
+    desc: 'Install Python dependencies'
+
+  deps:refresh:
+    cmds:
+      - task: deps:refresh:mise
+      - task: deps:refresh:npm
+      - task: deps:refresh:uv
+    desc: 'Install all project dependencies'
+
+  deps:refresh:mise:
+    cmds:
+      - |
+        echo "🔄 Refreshing Mise packages..."
+        mise upgrade
+        echo "✓ Packages refreshed"
+    desc: 'Refresh all Mise packages (update dependencies)'
+
+  deps:refresh:npm:
+    cmds:
+      - |
+        echo "🔄 Refreshing NodeJs packages..."
+        {{.__TF_MISE_E}} npm outdated \
+          && {{.__TF_MISE_E}} npm update \
+          && {{.__TF_MISE_E}} npm audit fix
+        echo "✓ Packages refreshed"
+    desc: 'Refresh all NodeJs packages (update dependencies)'
+
+  deps:refresh:uv:
+    cmds:
+      - |
+        echo "🔄 Refreshing Python packages..."
+        {{.__TF_MISE_E}} uv sync --upgrade
+        echo "✓ Packages refreshed"
+    desc: 'Refresh all Python packages (update dependencies)'

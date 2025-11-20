@@ -14,18 +14,23 @@ version = "0.11.0"
 backend = 'github:koalaman/shellcheck[platforms={ linux-x64 = { asset_pattern = "shellcheck-*.linux.armv6hf.tar.xz" }, macos-arm64 = { asset_pattern = "shellcheck-*.linux.x86_64.tar.xz" }, windows-x64 = { asset_pattern = "shellcheck-*.zip" } }]'
 
 [[tools.node]]
-version = "25.2.0"
+version = "25.2.1"
 backend = "core:node"
 
 [tools.node.platforms.windows-x64]
-checksum = "sha256:d06b49148fa8a0f6d4f0fb9fb5c2a6b66a5a3c5db89a3b4a83448e18237375e1"
-size = 36699349
-url = "https://nodejs.org/dist/v25.2.0/node-v25.2.0-win-x64.zip"
+checksum = "sha256:f97ba75ead7720652f3925d9cf8661e083a28c6b98ea77acc83903d77a9dd688"
+size = 36700021
+url = "https://nodejs.org/dist/v25.2.1/node-v25.2.1-win-x64.zip"
 
 [[tools.python]]
 version = "3.11.14"
 backend = "core:python"
 
 [[tools.uv]]
-version = "0.9.8"
+version = "0.9.10"
 backend = "aqua:astral-sh/uv"
+
+[tools.uv.platforms.windows-x64]
+checksum = "sha256:bf5a9bb171e90bc612c7acebfb560693d04dba1d1009c297b83da23155218607"
+size = 20720100
+url = "https://github.com/astral-sh/uv/releases/download/0.9.10/uv-x86_64-pc-windows-msvc.zip"

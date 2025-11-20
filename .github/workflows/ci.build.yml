@@ -34,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
         run: |
-          mise exec -- task build
+          task build
         shell: bash
 
   lint:
@@ -49,7 +49,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
         run: |
-          mise exec -- task format:check
+          task format:check
         shell: bash
 
       - name: Lint Code
@@ -57,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
         run: |
-          mise exec -- task lint:check
+          task lint:check
         shell: bash
 
   test:
@@ -76,7 +76,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
         run: |
-          mise exec -- task test
+          task test
         shell: bash
 
       - name: Run Tests with Coverage
@@ -85,7 +85,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
         run: |
-          mise exec -- task test:gen-coverage
+          task test:gen-coverage
         shell: bash
 
   duplicate-check:
@@ -96,9 +96,8 @@ jobs:
       - uses: actions/checkout@v4
       # duplicate check only requires node setup
       - uses: actions/setup-node@v3
-      - uses: go-task/setup-task@v1
 
       - name: Run duplicate check
         run: |
           npm install
-          task duplicate-check
+          npm run duplicate-check

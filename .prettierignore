@@ -13,5 +13,4 @@ coverage/
 .jscpd/
 *.lock
 *.log
-*.yml
-*.yaml
+
