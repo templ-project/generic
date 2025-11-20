@@ -17,6 +17,11 @@ backend = 'github:koalaman/shellcheck[platforms={ linux-x64 = { asset_pattern = 
 version = "25.2.1"
 backend = "core:node"
 
+[tools.node.platforms.linux-x64]
+checksum = "sha256:2094ecdc844ea11e9777cac42672b0d89cd63d27204193a587dc5a2d276bb940"
+size = 54532566
+url = "https://nodejs.org/dist/v25.2.1/node-v25.2.1-linux-x64.tar.gz"
+
 [tools.node.platforms.windows-x64]
 checksum = "sha256:f97ba75ead7720652f3925d9cf8661e083a28c6b98ea77acc83903d77a9dd688"
 size = 36700021
@@ -29,6 +34,11 @@ backend = "core:python"
 [[tools.uv]]
 version = "0.9.10"
 backend = "aqua:astral-sh/uv"
+
+[tools.uv.platforms.linux-x64]
+checksum = "sha256:e614681a150d52446eb8f4cf34f90b5d42b609bd1f2615da049449d795bfe5b4"
+size = 21638242
+url = "https://github.com/astral-sh/uv/releases/download/0.9.10/uv-x86_64-unknown-linux-musl.tar.gz"
 
 [tools.uv.platforms.windows-x64]
 checksum = "sha256:bf5a9bb171e90bc612c7acebfb560693d04dba1d1009c297b83da23155218607"

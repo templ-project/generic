@@ -88,10 +88,8 @@ tasks:
 
   format:prettier:
     cmds:
-      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
-      # - npx prettier --write "./**/*.{json,toml,yaml,yml}"
       - |
-        {{.__TF_MISE_E}} npx prettier --write "./**/*.{json,yaml,yml}"
+        {{.__TF_MISE_E}} npx prettier --write "./**/*.{json,toml,yaml,yml}"
     desc: 'Format code using Prettier'
     silent: true
 
@@ -103,10 +101,8 @@ tasks:
 
   format:check:prettier:
     cmds:
-      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/35
-      # - npx prettier --check "./**/*.{json,toml,yaml,yml}"
       - |
-        {{.__TF_MISE_E}} npx prettier --check "./**/*.{json,yaml,yml}"
+        {{.__TF_MISE_E}} npx prettier --check "./**/*.{json,toml,yaml,yml}"
     desc: 'Check code formatting using Prettier'
     silent: true
 
@@ -127,10 +123,8 @@ tasks:
 
   lint:eslint:
     cmds:
-      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/34
-      # - npx eslint --fix "./**/*.{json,toml,yaml,yml}"
       - |
-        {{.__TF_MISE_E}} npx eslint --fix "./**/*.{json,yaml,yml}"
+        {{.__TF_MISE_E}} npx eslint --fix "./**/*.{json,toml,yaml,yml}"
       - echo "- ✅ eslint lint completed"
     desc: 'Lint code using ESLint'
     silent: true
@@ -163,10 +157,8 @@ tasks:
 
   lint:check:eslint:
     cmds:
-      # TODO: Need to add toml -> https://github.com/templ-project/vscode-extensions/issues/34
-      # - npx eslint "./**/*.{json,toml,yaml,yml}"
       - |
-        {{.__TF_MISE_E}} npx eslint "./**/*.{json,yaml,yml}"
+        {{.__TF_MISE_E}} npx eslint "./**/*.{toml,json,yaml,yml}"
       - echo "- ✅ eslint lint check completed"
     desc: 'Check code using ESLint'
     silent: true
