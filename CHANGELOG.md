@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.2 (2025-11-21)
+
+### Bug Fixes
+
+* trigger version bump workflow ([6d2722f](https://github.com/templ-project/generic/commit/6d2722f477fe86b02f5ca47af4c8409923d32527))
 
 ## 0.1.0 (2025-11-21)
 
