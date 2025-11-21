@@ -16,9 +16,9 @@ jobs:
     strategy:
       matrix:
         os:
-          - macos-latest
+          # - macos-latest
           - ubuntu-latest
-          - windows-latest
+          # - windows-latest
     uses: ./.github/workflows/ci.build.yml
     with:
       os: ${{ matrix.os }}
@@ -45,7 +45,7 @@ jobs:
       github.event_name == 'push'
       && github.ref == 'refs/heads/main'
       && needs.version.result == 'success'
-      && needs.version.outputs.version != ''
+      && needs.version.outputs.tag != ''
     needs: [version]
     uses: ./.github/workflows/ci.release.yml
     permissions:
