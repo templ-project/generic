@@ -20,11 +20,6 @@ jobs:
   build:
     runs-on: ${{ inputs.os }}
     needs: [setup]
-    strategy:
-      matrix:
-        profile:
-          - debug
-          - release
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-tools
@@ -60,10 +55,6 @@ jobs:
   test:
     runs-on: ${{ inputs.os }}
     needs: [setup, lint]
-    strategy:
-      matrix:
-        task_manager:
-          - task
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-tools
@@ -89,10 +80,8 @@ jobs:
     needs: [setup]
     steps:
       - uses: actions/checkout@v4
-      # duplicate check only requires node setup
       - uses: actions/setup-node@v3
 
       - name: Run duplicate check
         run: |
-          npm install
-          npm run duplicate-check
+          npm install && npm run duplicate-check
