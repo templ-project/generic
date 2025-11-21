@@ -87,7 +87,7 @@ function Install-PSScriptAnalyzerModule {
 function Get-PowerShellScript {
   # Use current working directory as the repository root
   # The task system ensures we're running from the repo root
-  $repoRoot = (Get-Location).Path
+  $repoRoot = Get-Location | Select-Object -ExpandProperty Path
 
   if ($Staged) {
     # Get only staged .ps1 files

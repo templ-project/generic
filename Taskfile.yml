@@ -29,7 +29,10 @@ tasks:
     desc: 'Build project'
     cmds:
       - task: print:env
-      - cmd: echo "Building ..."
+      - cmd: echo "This is bash, building is not necessary for scripts."
+        platforms: [darwin, linux]
+      - cmd: echo "This is PowerShell, building is not necessary for scripts."
+        platforms: [windows]
 
   # ============================================================================
   # Clean Tasks
@@ -168,11 +171,11 @@ tasks:
     desc: 'Run tests (system: {{.CPP_BUILD_SYSTEM}})'
     cmds:
       - task: build
-      - cmd: echo "Testing ..."
+      - cmd: echo "Didn't include testing for bash/pwsh."
 
   test:gen-coverage:
     cmds:
-      - cmd: echo "Generating coverage report ..."
+      - cmd: echo "Didn't include testing (and coverage) for bash/pwsh."
     desc: 'Generate test coverage report'
     silent: true
 
@@ -185,7 +188,10 @@ tasks:
     deps:
       - task: build
     cmds:
-      - cmd: echo "Running ..."
+      - cmd: bash src/cli.sh
+        platforms: [darwin, linux]
+      - cmd: pwsh -File src/cli.ps1
+        platforms: [windows]
 
   debug:
     desc: 'Run application with debugger (gdb on Linux/macOS)'

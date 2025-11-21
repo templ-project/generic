@@ -72,7 +72,7 @@ if (-not (Get-Command shellcheck -ErrorAction SilentlyContinue)) {
 
 # Get list of shell scripts
 function Get-ShellScript {
-  $repoRoot = (Get-Location).Path
+  $repoRoot = Get-Location | Select-Object -ExpandProperty Path
 
   if ($Staged) {
     # Only get staged .sh files
@@ -116,8 +116,9 @@ function Invoke-Linting {
     if (-not $file) { continue }
 
     $fileCount++
-    $relativePath = if ($file.StartsWith((Get-Location).Path)) {
-      $file.Substring((Get-Location).Path.Length).TrimStart('\', '/')
+    $currentPath = Get-Location | Select-Object -ExpandProperty Path
+    $relativePath = if ($file.StartsWith($currentPath)) {
+      $file.Substring($currentPath.Length).TrimStart('\', '/')
     }
     else {
       $file
