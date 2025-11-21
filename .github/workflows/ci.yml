@@ -29,6 +29,7 @@ jobs:
     if: |
       github.event_name == 'push'
       && github.ref == 'refs/heads/main'
+      && needs.build.result == 'success'
     needs: [build]
     uses: ./.github/workflows/ci.version.yml
     permissions:
@@ -43,6 +44,7 @@ jobs:
     if: |
       github.event_name == 'push'
       && github.ref == 'refs/heads/main'
+      && needs.version.result == 'success'
       && needs.version.outputs.version != ''
     needs: [version]
     uses: ./.github/workflows/ci.release.yml

@@ -12,10 +12,48 @@ on:
         required: false
         type: boolean
         default: false
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag for the release (e.g., v1.2.3 or 1.2.3)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+      skip_validation:
+        description: 'Skip build validation before release'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
+  # Optional validation when manually triggered
+  validate:
+    if: github.event_name == 'workflow_dispatch' && !inputs.skip_validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+      - uses: ./.github/actions/setup-tools
+
+      - name: Validate Build
+        run: |
+          task build
+        shell: bash
+
+      - name: Run Lint
+        run: |
+          task lint:check
+        shell: bash
+
   release:
     runs-on: ubuntu-latest
+    needs: [validate]
+    if: always() && (needs.validate.result == 'success' || needs.validate.result == 'skipped')
     permissions:
       contents: write
     steps:
@@ -27,7 +65,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.version_tag }}
+          ref: ${{ inputs.version }}
           fetch-depth: 0
 
       - name: Setup Toolchain
@@ -40,22 +78,42 @@ jobs:
             echo "Using generated CHANGELOG.md from bumpalicious"
           else
             echo "CHANGELOG.md not found, will use tag as body"
-            echo "Release ${{ inputs.version_tag }}" > CHANGELOG.md
+            echo "Release ${{ inputs.version }}" > CHANGELOG.md
           fi
 
       - name: Build release binaries
         run: |
           mkdir -p release-assets
 
-          # Create source tarball (excluding build artifacts and git)
+          # Create Bash artifact (greeter.sh + cli.sh)
+          mkdir -p bash-artifact
+          cp src/greeter.sh bash-artifact/
+          cp src/cli.sh bash-artifact/
+          cp README.md bash-artifact/ 2>/dev/null || echo "# Bash Greeter" > bash-artifact/README.md
+          tar -czf release-assets/generic-template-bash-v${{ inputs.version }}.tar.gz \
+              -C bash-artifact .
+
+          # Create PowerShell artifact (greeter.ps1 + cli.ps1)
+          mkdir -p powershell-artifact
+          cp src/greeter.ps1 powershell-artifact/
+          cp src/cli.ps1 powershell-artifact/
+          cp README.md powershell-artifact/ 2>/dev/null || echo "# PowerShell Greeter" > powershell-artifact/README.md
+          tar -czf release-assets/generic-template-powershell-v${{ inputs.version }}.tar.gz \
+              -C powershell-artifact .
+
+          # Create full source tarball (excluding build artifacts and git)
           tar --exclude='.git' \
               --exclude='.cwai' \
               --exclude='.github/prompts' \
               --exclude='.uvx-install' \
               --exclude='.venv' \
               --exclude='node_modules' \
-              -czf release-assets/generic-template-v${{ inputs.version }}-source.tar.gz \
+              --exclude='bash-artifact' \
+              --exclude='powershell-artifact' \
+              --exclude='release-assets' \
+              -czf release-assets/generic-template-source-v${{ inputs.version }}.tar.gz \
               .
+
           echo "Release assets created:"
           ls -lah release-assets/
 
