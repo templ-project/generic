@@ -12,7 +12,7 @@ jobs:
   build:
     name: Build ${{ matrix.os }}
     if: |
-      !startsWith(github.event.head_commit.message, 'chore: bump version')
+      !contains(github.event.head_commit.message, 'version_bump/')
     strategy:
       matrix:
         os:
