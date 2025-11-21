@@ -49,6 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # trying to force the version
       - name: Bump version with Bumpalicious
         id: bump
         uses: dragoscops/bumpalicious@v3
