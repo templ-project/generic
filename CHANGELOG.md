@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3 (2025-11-21)
+
+### Bug Fixes
+
+* fixing the commits ([a9a4cca](https://github.com/templ-project/generic/commit/a9a4ccab458f35cbd8fbe07448fc023fecdaa32d))
+
 ## 0.0.2 (2025-11-21)
 
 ### Bug Fixes
