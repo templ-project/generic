@@ -24,7 +24,7 @@ jobs:
       os: ${{ matrix.os }}
 
   # Version bump (only on main branch push, uses conventional commits)
-  version:
+  version-bump:
     name: Bump Version
     if: |
       always()
@@ -39,16 +39,50 @@ jobs:
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+  # Version detect (detect version values, in case they were changed)
+  version-detect:
+    name: Detect Version
+    needs: [version-bump]
+    runs-on: ubuntu-latest
+    if: always()
+    outputs:
+      tag: ${{ steps.extract.outputs.tag }}
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - name: Download version artifact
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: version-output
+          path: version-output
+
+      - name: Extract version data
+        id: extract
+        continue-on-error: true
+        run: |
+          if [ -f version-output/version.json ]; then
+            TAG=$(jq -r '.tag' version-output/version.json)
+            VERSION=$(jq -r '.version' version-output/version.json)
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Extracted tag: $TAG"
+            echo "Extracted version: $VERSION"
+          else
+            echo "⚠ version.json not found in artifact - skipping"
+            echo "tag=" >> $GITHUB_OUTPUT
+            echo "version=" >> $GITHUB_OUTPUT
+          fi
+
   # Release (only on main branch push after version bump)
   release:
     name: Create Release
     if: |
       always()
-      && needs.version.outputs.version != ''
-    needs: [version]
+      && needs.version-detect.outputs.tag != ''
+    needs: [version-detect]
     uses: ./.github/workflows/ci.release.yml
     permissions:
       contents: write
     with:
-      version: ${{ needs.version.outputs.version }}
+      version: ${{ needs.version-detect.outputs.tag }}
       prerelease: false

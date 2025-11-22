@@ -57,47 +57,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Download version artifact (when called from workflow)
-        if: github.event_name == 'workflow_call'
-        uses: actions/download-artifact@v4
-        with:
-          name: version-output
-          path: version-output
-
-      - name: Extract version from artifact (when called from workflow)
-        if: github.event_name == 'workflow_call'
-        id: extract_version
+      - name: Debug inputs.prerelease
         run: |
-          if [ -f version-output/version.json ]; then
-            VERSION=$(jq -r '.tag' version-output/version.json)
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "Using version from artifact: $VERSION"
-          else
-            echo "ERROR: version.json not found in artifact"
-            exit 1
-          fi
-
-      - name: Set version variable
-        id: version
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-            echo "Using version from input: ${{ inputs.version }}"
-          else
-            echo "version=${{ steps.extract_version.outputs.version }}" >> $GITHUB_OUTPUT
-            echo "Using version from artifact: ${{ steps.extract_version.outputs.version }}"
-          fi
-
-      - name: Debug inputs
-        run: |
-          echo "event_name = ${{ github.event_name }}"
-          echo "version = ${{ steps.version.outputs.version }}"
+          echo "version = ${{ inputs.version }}"
           echo "prerelease = ${{ inputs.prerelease }}"
 
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.version.outputs.version }}
+          ref: ${{ inputs.version }}
           fetch-depth: 0
 
       - name: Setup Toolchain
@@ -110,7 +78,7 @@ jobs:
             echo "Using generated CHANGELOG.md from bumpalicious"
           else
             echo "CHANGELOG.md not found, will use tag as body"
-            echo "Release ${{ steps.version.outputs.version }}" > CHANGELOG.md
+            echo "Release ${{ inputs.version }}" > CHANGELOG.md
           fi
 
       - name: Build release binaries
@@ -123,7 +91,7 @@ jobs:
             cp src/greeter.sh bash-artifact/
             cp src/cli.sh bash-artifact/
             cp README.md bash-artifact/ 2>/dev/null || echo "# Bash Greeter" > bash-artifact/README.md
-            tar -czf release-assets/generic-template-bash-v${{ steps.version.outputs.version }}.tar.gz \
+            tar -czf release-assets/generic-template-bash-v${{ inputs.version }}.tar.gz \
                 -C bash-artifact .
             echo "✓ Created Bash artifact"
           else
@@ -136,7 +104,7 @@ jobs:
             cp src/greeter.ps1 powershell-artifact/
             cp src/cli.ps1 powershell-artifact/
             cp README.md powershell-artifact/ 2>/dev/null || echo "# PowerShell Greeter" > powershell-artifact/README.md
-            tar -czf release-assets/generic-template-powershell-v${{ steps.version.outputs.version }}.tar.gz \
+            tar -czf release-assets/generic-template-powershell-v${{ inputs.version }}.tar.gz \
                 -C powershell-artifact .
             echo "✓ Created PowerShell artifact"
           else
@@ -153,7 +121,7 @@ jobs:
               --exclude='bash-artifact' \
               --exclude='powershell-artifact' \
               --exclude='release-assets' \
-              -czf release-assets/generic-template-source-v${{ steps.version.outputs.version }}.tar.gz \
+              -czf release-assets/generic-template-source-v${{ inputs.version }}.tar.gz \
               .
           echo "✓ Created source tarball"
 
@@ -164,8 +132,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.version.outputs.version }}
-          name: Release ${{ steps.version.outputs.version }}
+          tag_name: ${{ inputs.version }}
+          name: Release ${{ inputs.version }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: ${{ inputs.prerelease }}
