@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.12 (2025-11-22)
+
+### Bug Fixes
+
+* removed conditions on when version is running  - v10 ([6458e81](https://github.com/templ-project/generic/commit/6458e81b94be7fbe32cb7445a87591adbb25d74a))
+
 ## 0.0.11 (2025-11-22)
 
 ### Bug Fixes
