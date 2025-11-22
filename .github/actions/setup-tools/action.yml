@@ -24,6 +24,7 @@ runs:
       curl https://mise.run | sh
       echo "eval \"\$(/Users/runner/.local/bin/mise activate bash)\"" >> ~/.bashrc
       mise activate
+      mise --version
 
   - name: Install Mise (Windows)
     env:
@@ -36,6 +37,7 @@ runs:
   - name: Update Mise
     env:
       GITHUB_TOKEN: ${{ github.token }}
+    if: ${{ runner.os == 'Windows' }}
     shell: bash
     run: |
       mise self-update
@@ -45,7 +47,7 @@ runs:
   - uses: actions/cache@v4
     if: ${{ runner.os != 'Windows' }}
     with:
-      key: ${{ runner.os }}-${{ runner.arch }}-mise-tools-${{ hashFiles('mise.lock') }}
+      key: ${{ runner.os }}-${{ runner.arch }}-x-mise-tools-${{ hashFiles('.mise.lock') }}
       path: |
         ~/.local/share/mise
         ~/.cache/mise
@@ -53,7 +55,7 @@ runs:
   - uses: actions/cache@v4
     if: ${{ runner.os == 'Windows' }}
     with:
-      key: ${{ runner.os }}-${{ runner.arch }}-mise-tools-${{ hashFiles('mise.lock') }}
+      key: ${{ runner.os }}-${{ runner.arch }}-x-mise-tools-${{ hashFiles('.mise.lock') }}
       path: |
         ~\AppData\Local\mise\installs
         ~\.cache\mise

@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-tools
+      - run: sleep 10
 
   build:
     runs-on: ${{ inputs.os }}
@@ -23,7 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-tools
-
       - name: Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

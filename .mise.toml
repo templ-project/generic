@@ -35,6 +35,9 @@ linux-x64 = { asset_pattern = "powershell-*-linux-x64.tar.gz" }
 macos-arm64 = { asset_pattern = "powershell-*-osx-arm64.tar.gz" }
 windows-x64 = { asset_pattern = "PowerShell-*-win-x64.zip" }
 
+[hooks]
+postinstall = "{% if os() != 'windows' %}chmod -R 755 $(mise bin-paths github:PowerShell/PowerShell)/pwsh; echo 'chown -R 755 pwsh'{% endif %}"
+
 # Node.js for jscpd & eslint
 #
 [tools.node]
