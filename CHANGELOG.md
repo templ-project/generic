@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.13 (2025-11-22)
+
+### Bug Fixes
+
+* additional hook to make pswh executable on macos ([56a09be](https://github.com/templ-project/generic/commit/56a09be32c92dad4d4f5a70c194dcc4f6382469c))
+* better configs + release should not pack source, it's gh action's job ([2651472](https://github.com/templ-project/generic/commit/265147248f204031dc13cd92a944a248e1df1bd7))
+* removed conditions on when version is running  - v10 ([6458e81](https://github.com/templ-project/generic/commit/6458e81b94be7fbe32cb7445a87591adbb25d74a))
+
 ## 0.0.11 (2025-11-22)
 
 ### Bug Fixes
