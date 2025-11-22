@@ -64,3 +64,22 @@ jobs:
       - name: Output new version
         run: |
           echo "New version tag: ${{ steps.bump.outputs.tag }}"
+          echo "New version: ${{ steps.bump.outputs.version }}"
+
+          # Create JSON output file
+          mkdir -p version-output
+          cat > version-output/version.json << EOF
+          {
+            "tag": "${{ steps.bump.outputs.tag }}",
+            "version": "${{ steps.bump.outputs.version }}"
+          }
+          EOF
+
+          cat version-output/version.json
+
+      - name: Upload version output
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-output
+          path: version-output/version.json
+          retention-days: 1
