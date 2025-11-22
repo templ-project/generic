@@ -10,6 +10,9 @@ on:
       version:
         description: 'The version tag that was created (e.g., 1.2.3)'
         value: ${{ jobs.version.outputs.version }}
+      tag:
+        description: 'The version tag (alias for version)'
+        value: ${{ jobs.version.outputs.version }}
   workflow_dispatch:
     inputs:
       skip_validation:
@@ -45,6 +48,7 @@ jobs:
       contents: write
       pull-requests: write
     outputs:
+      tag: ${{ steps.bump.outputs.tag }}
       version: ${{ steps.bump.outputs.version }}
     steps:
       - uses: actions/checkout@v4
