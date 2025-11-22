@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.7 (2025-11-22)
+
+### Bug Fixes
+
+* removed conditions on when version is running  - v4 ([f5dcaa3](https://github.com/templ-project/generic/commit/f5dcaa3efb09f6233814ec49b479a8df41d65c92))
+
 ## 0.0.6 (2025-11-21)
 
 ### Bug Fixes
