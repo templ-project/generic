@@ -43,6 +43,7 @@ jobs:
     name: Create Release Debug
     needs: [version]
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: Output version
         run: |
