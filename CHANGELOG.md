@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.14 (2025-11-22)
+
+### Bug Fixes
+
+* additional hook to make pswh executable on macos ([40bed19](https://github.com/templ-project/generic/commit/40bed19ed1806619d2b8188addccd5c97b41b210))
+
 ## 0.0.13 (2025-11-22)
 
 ### Bug Fixes
