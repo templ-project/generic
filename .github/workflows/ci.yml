@@ -39,17 +39,26 @@ jobs:
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+  release-debug:
+    name: Create Release Debug
+    needs: [version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output version
+        run: |
+          echo "Tag from version job: ${{ needs.version.outputs.tag }}"
+          echo "Version from version job: ${{ needs.version.outputs.version }}"
+
   # Release (only on main branch push after version bump)
   release:
     name: Create Release
     if: |
       always()
-      && needs.version.result == 'success'
       && needs.version.outputs.tag != ''
     needs: [version]
     uses: ./.github/workflows/ci.release.yml
     permissions:
       contents: write
     with:
-      version: ${{ needs.version.outputs.version }}
+      version: ${{ needs.version.outputs.tag }}
       prerelease: false
