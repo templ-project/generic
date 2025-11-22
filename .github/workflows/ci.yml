@@ -16,9 +16,9 @@ jobs:
     strategy:
       matrix:
         os:
-          # - macos-latest
+          - macos-latest
           - ubuntu-latest
-          # - windows-latest
+          - windows-latest
     uses: ./.github/workflows/ci.build.yml
     with:
       os: ${{ matrix.os }}
@@ -84,5 +84,5 @@ jobs:
     permissions:
       contents: write
     with:
-      version: ${{ needs.version-detect.outputs.tag }}
+      tag: ${{ needs.version-detect.outputs.tag }}
       prerelease: false

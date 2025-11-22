@@ -3,8 +3,8 @@ name: CI » Release
 on:
   workflow_call:
     inputs:
-      version:
-        description: 'Version for the release (e.g., 1.2.3)'
+      tag:
+        description: 'Tag for the release (e.g., v1.2.3)'
         required: true
         type: string
       prerelease:
@@ -14,8 +14,8 @@ on:
         default: false
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version tag for the release (e.g., v1.2.3 or 1.2.3)'
+      tag:
+        description: 'Tag for the release (e.g., v1.2.3)'
         required: true
         type: string
       prerelease:
@@ -37,8 +37,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.version }}
+          ref: ${{ inputs.tag }}
       - uses: ./.github/actions/setup-tools
+
+      - name: Lint Code
+        run: |
+          task lint
+        shell: bash
 
       - name: Validate Build
         run: |
@@ -54,13 +59,13 @@ jobs:
     steps:
       - name: Debug inputs.prerelease
         run: |
-          echo "version = ${{ inputs.version }}"
+          echo "tag = ${{ inputs.tag }}"
           echo "prerelease = ${{ inputs.prerelease }}"
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.version }}
+          ref: ${{ inputs.tag }}
           fetch-depth: 0
 
       - name: Setup Toolchain
@@ -73,7 +78,7 @@ jobs:
             echo "Using generated CHANGELOG.md from bumpalicious"
           else
             echo "CHANGELOG.md not found, will use tag as body"
-            echo "Release ${{ inputs.version }}" > CHANGELOG.md
+            echo "Release ${{ inputs.tag }}" > CHANGELOG.md
           fi
 
       - name: Build Release Binaries
@@ -91,7 +96,7 @@ jobs:
             cp src/greeter.sh bash-artifact/
             cp src/cli.sh bash-artifact/
             cp README.md bash-artifact/ 2>/dev/null || echo "# Bash Greeter" > bash-artifact/README.md
-            tar -czf release-assets/generic-template-bash-v${{ inputs.version }}.tar.gz \
+            tar -czf release-assets/generic-template-bash-${{ inputs.tag }}.tar.gz \
                 -C bash-artifact .
             echo "✓ Created Bash artifact"
           else
@@ -104,36 +109,22 @@ jobs:
             cp src/greeter.ps1 powershell-artifact/
             cp src/cli.ps1 powershell-artifact/
             cp README.md powershell-artifact/ 2>/dev/null || echo "# PowerShell Greeter" > powershell-artifact/README.md
-            tar -czf release-assets/generic-template-powershell-v${{ inputs.version }}.tar.gz \
+            tar -czf release-assets/generic-template-powershell-${{ inputs.tag }}.tar.gz \
                 -C powershell-artifact .
             echo "✓ Created PowerShell artifact"
           else
             echo "⚠ Skipping PowerShell artifact (source files not found)"
           fi
 
-          # Create full source tarball (excluding build artifacts and git)
-          tar --exclude='.git' \
-              --exclude='.cwai' \
-              --exclude='.github/prompts' \
-              --exclude='.uvx-install' \
-              --exclude='.venv' \
-              --exclude='node_modules' \
-              --exclude='bash-artifact' \
-              --exclude='powershell-artifact' \
-              --exclude='release-assets' \
-              -czf release-assets/generic-template-source-v${{ inputs.version }}.tar.gz \
-              .
-          echo "✓ Created source tarball"
-
           echo ""
           echo "Release assets created:"
           ls -lah release-assets/
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.version }}
-          name: Release ${{ inputs.version }}
+          tag_name: ${{ inputs.tag }}
+          name: Release ${{ inputs.tag }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: ${{ inputs.prerelease }}
