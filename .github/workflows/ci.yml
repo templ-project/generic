@@ -23,7 +23,7 @@ jobs:
     with:
       os: ${{ matrix.os }}
 
-  # Version bump (only on main branch push, uses conventional commits)
+  # Version bump (only on main branch push, uses conventional commits) --
   version:
     name: Bump Version
     if: |
