@@ -294,9 +294,9 @@ tasks:
     cmds:
       - |
         echo "📦 Installing Mise dependencies..."
-        if [ ! -f mise.local.lock ] && [ ! -f mise.lock ]; then
-          echo "⚠️  mise.local.lock not found; sync won't generate mise.lock automatically."
-          echo "Please create a mise.local.lock file or a mise.lock file to proceed."
+        if [ ! -f .mise.local.lock ] && [ ! -f .mise.lock ]; then
+          echo "⚠️  .mise.local.lock not found; sync won't generate .mise.lock automatically."
+          echo "Please create a .mise.local.lock file or a .mise.lock file to proceed."
           echo ""
           echo "[settings]"
           echo "experimental = true"

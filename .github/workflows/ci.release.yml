@@ -45,7 +45,7 @@ jobs:
           task lint
         shell: bash
 
-      - name: Validate Build
+      - name: Test Code
         run: |
           task test
         shell: bash
@@ -86,7 +86,7 @@ jobs:
           task build
         shell: bash
 
-      - name: Prepare release tarballs
+      - name: Create distribution packages
         run: |
           mkdir -p release-assets
 
