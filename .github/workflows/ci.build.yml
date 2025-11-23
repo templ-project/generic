@@ -23,6 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-tools
+
       - name: Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,6 +41,7 @@ jobs:
       - name: Check Code Formatting
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
         run: |
           task format:check
         shell: bash
@@ -47,6 +49,7 @@ jobs:
       - name: Lint Code
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
         run: |
           task lint:check
         shell: bash
@@ -69,6 +72,7 @@ jobs:
         if: ${{ inputs.os == 'ubuntu-latest' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
         run: |
           task test:gen-coverage
         shell: bash

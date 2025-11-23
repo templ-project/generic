@@ -1,9 +1,55 @@
 version: '3'
 
 vars:
+  # mise dependent
+  __TF_MISE_E: 'mise trust; mise exec --'
+  __TF_MISE_E_PWSH: 'mise trust; mise exec -- pwsh -ExecutionPolicy Bypass -Command'
+  __TF_MISE_E_PWSH_FILE: 'mise trust; mise exec -- pwsh -ExecutionPolicy Bypass -File'
+  # os dependent
+  __TF_COMMAND_WRAPPER:
+    sh: |
+      echo '{{if eq OS "windows"}}powershell -ExecutionPolicy Bypass -Command{{else}}bash -c{{end}}'
+  __TF_VAR_PREFIX:
+    sh: |
+      echo "{{if eq OS "windows"}}\${{else}}{{end}}"
   __TF_HEADER_LINE: '=============================================================='
   __TF_SEP: ' '
-  __TF_MISE_E: 'mise trust; mise exec --'
+
+  # cpp project defaults
+  __TF_VALIDATION_CPP_BUILD_SYSTEMS:
+    sh: |
+      echo "bazel cmake xmake"
+  __TF_VALIDATION__CPP_COMPILERS:
+    sh: |
+      echo "clang++ {{if eq OS "windows"}}msvc{{else}}g++{{end}}"
+  CPP_PROJECT_NAME: '{{default .CPP_PROJECT_NAME "cpp-template"}}'
+  CPP_BUILD_SYSTEM: '{{default .CPP_BUILD_SYSTEM "cmake"}}' # bazel, cmake, xmake
+  CPP_BUILD_DIR: '{{default .CPP_BUILD_DIR "build"}}'
+  CPP_BUILD_TYPE: '{{default .CPP_BUILD_TYPE "Release"}}'
+  CPP_COMPILER: '{{default .CPP_COMPILER "clang++"}}' # clang++, g++, msvc (windows)
+
+env:
+  BAZEL_VC:
+    sh: |
+      {{if eq OS "windows"}}powershell -ExecutionPolicy Bypass -Command "(Get-ChildItem 'C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC' | Sort-Object LastWriteTime -Descending | Select-Object -First 1).Parent.Parent.FullName"{{else}}echo ""{{end}}
+  BAZEL_VC_FULL_VERSION:
+    sh: |
+      {{if eq OS "windows"}}powershell -ExecutionPolicy Bypass -Command "(Get-ChildItem 'C:\Program Files*\Microsoft Visual Studio\*\*\VC\Tools\MSVC\*' | Sort-Object LastWriteTime -Descending | Select-Object -First 1).Name"{{else}}echo ""{{end}}
+  BAZEL_LLVM:
+    sh: |
+      {{if eq OS "windows"}}powershell -ExecutionPolicy Bypass -Command "try { (Get-Item (Get-Command clang++).Source).Directory.Parent.FullName } catch { Write-Host '' }"{{else}}echo ""{{end}}
+  CMAKE_VS_GENERATOR:
+    sh: |
+      {{if eq OS "windows"}}powershell -ExecutionPolicy Bypass -Command "(Get-ChildItem 'C:\Program Files*\Microsoft Visual Studio\*' -Directory | Sort-Object Name | Select-Object -First 1).Name | ForEach-Object { if (\$_ -eq '2022') { 'Visual Studio 17 2022' } elseif (\$_ -eq '2019') { 'Visual Studio 16 2019' } elseif (\$_ -eq '2017') { 'Visual Studio 15 2017' } else { 'Visual Studio 17 2022' } }"{{else}}echo ""{{end}}
+  # LLVM_ROOT:
+  #   sh: |
+  #     {{if eq OS "windows"}}powershell -ExecutionPolicy Bypass -Command '(Get-Item (Get-Command clang++).Source).Directory.Parent.FullName'{{else}}dirname $(dirname $(which clang++)){{end}}
+  SDKROOT:
+    sh: |
+      echo "{{if eq OS "darwin"}}/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk{{else}}$SDKROOT{{end}}"
+  # LDFLAGS:
+  #   sh: |
+  #     {{if eq OS "darwin"}}echo "-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"{{else if eq OS "linux"}}echo ""{{else}}LLVM_ROOT=$(powershell -ExecutionPolicy Bypass -Command '(Get-Item (Get-Command clang++).Source).Directory.Parent.FullName'); echo "-L\"$LLVM_ROOT/lib\""{{end}}
 
 tasks:
   # ==========================================================================
@@ -11,8 +57,6 @@ tasks:
   # ==========================================================================
 
   print:env:
-    env:
-      PATH: '{{.__TF_PATH}}'
     cmds:
       - cmd: |
           {{.__TF_MISE_E}} env | sort
@@ -33,6 +77,16 @@ tasks:
         platforms: [darwin, linux]
       - cmd: echo "This is PowerShell, building is not necessary for scripts."
         platforms: [windows]
+
+  pwsh:
+    desc: 'Run PowerShell scripts'
+    vars:
+      CODE: '{{.CODE | default "echo \"Hello from PowerShell!\""}}'
+    cmds:
+      - cmd: |
+          temp=$(mktemp)
+          echo $temp
+          # {{.__TF_MISE_E}} pwsh -Command "{{.CODE}}"
 
   # ============================================================================
   # Clean Tasks
@@ -61,10 +115,10 @@ tasks:
     silent: true
 
   format:check:
-    desc: 'Check code formatting without fixing'
     cmds:
       - task: format:check:prettier
       - cmd: echo "✅ Code format check completed"
+    desc: 'Check code formatting without fixing'
 
   format:check:prettier:
     cmds:
