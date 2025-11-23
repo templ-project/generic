@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.15 (2025-11-23)
+
+### Bug Fixes
+
+* workflow fixes ([a3ca005](https://github.com/templ-project/generic/commit/a3ca0053ae3674f2a51888233052f57b4125e1ee))
+
 ## 0.0.14 (2025-11-22)
 
 ### Bug Fixes
