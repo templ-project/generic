@@ -55,12 +55,13 @@ tasks:
           echo "Building {{.RUST_PROJECT_NAME}} for {{OS}}/{{ARCH}} in {{.RUST_BUILD_TYPE}} mode"
           echo "{{.__TF_HEADER_LINE}}"
       - task: print:env
+      # TODO: add actual build commands here
       - cmd: echo "This is bash, building is not necessary for scripts."
         platforms: [darwin, linux]
       - cmd: echo "This is PowerShell, building is not necessary for scripts."
         platforms: [windows]
     sources:
-      - src/**/*
+      - src/**/*.{sh,ps1}
 
   # ============================================================================
   # Clean Tasks
@@ -69,7 +70,14 @@ tasks:
   clean:
     desc: 'Clean all build artifacts'
     cmds:
-      - cmd: echo "Cleaning ..."
+      - cmd: |
+          echo "🧹 Cleaning build artifacts..."
+          rm -rf \
+            .task \
+            build \
+            dist \
+            docs-html
+          echo "✓ Build artifacts cleaned"
 
   # ============================================================================
   # Code Quality Tasks
@@ -92,7 +100,10 @@ tasks:
   prettier:
     cmds:
       - |
-        {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}} "./**/*.{json,toml,yaml,yml}"
+        {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}} .
+    silent: true
+    sources:
+      - '**/*.{json,md,toml,yaml,yml}'
 
   format:check:
     cmds:
@@ -128,9 +139,11 @@ tasks:
   eslint:
     cmds:
       - |
-        {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}} "./**/*.{json,toml,yaml,yml}"
+        {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}} .
     desc: 'Run ESLint'
     silent: true
+    sources:
+      - '**/*.{json,md,toml,yaml,yml}'
 
   lint:pwshlint:
     aliases: [lint:pwsh]
@@ -148,6 +161,8 @@ tasks:
         {{.__TF_MISE_E_UV_RUN}} .scripts/pwshlint.py {{.CLI_ARGS}}
     desc: 'Run PSScriptAnalyzer'
     silent: true
+    sources:
+      - src/**/*.ps1
 
   lint:shlint:
     aliases: [lint:sh, lint:bash]
@@ -166,6 +181,8 @@ tasks:
         platforms: [darwin, linux, windows]
     desc: 'Run ShellCheck'
     silent: true
+    sources:
+      - src/**/*.sh
 
   lint:check:
     desc: 'Run linter without fixing'
@@ -218,13 +235,15 @@ tasks:
   # ============================================================================
 
   test:
-    desc: 'Run tests (system: {{.CPP_BUILD_SYSTEM}})'
+    desc: 'Run tests with coverage'
     cmds:
       - task: build
+      # TODO: add actual test commands here
       - cmd: echo "Didn't include testing for bash/pwsh."
 
   test:gen-coverage:
     cmds:
+      # TODO: add actual test+coverage commands here
       - cmd: echo "Didn't include testing (and coverage) for bash/pwsh."
     desc: 'Generate test coverage report'
     silent: true
@@ -240,13 +259,15 @@ tasks:
     cmds:
       - cmd: bash src/cli.sh
         platforms: [darwin, linux]
-      - cmd: pwsh -File src/cli.ps1
+      - cmd: |
+          {{.__TF_MISE_E_PWSH_FILE}} src/cli.ps1
         platforms: [windows]
 
   debug:
     desc: 'Run application with debugger (gdb on Linux/macOS)'
     cmds:
-      - task: Build
+      - task: build
+      # TODO: add actual run+debug commands here
       - cmd: echo "Running (Debug mode)... "
 
   # ============================================================================
@@ -266,12 +287,6 @@ tasks:
         echo "📚 Starting documentation server..."
         echo "📖 Open http://127.0.0.1:8000 in your browser"
         {{.__TF_MISE_E}} uv run mkdocs serve
-
-  docs:deploy:
-    desc: 'Deploy documentation to GitHub Pages'
-    cmds:
-      - |
-        {{.__TF_MISE_E}} uv run mkdocs gh-deploy --force
 
   # ============================================================================
   # Validation Tasks
@@ -314,6 +329,7 @@ tasks:
         platforms: [darwin, linux]
       - cmd: powershell -File 'Remove-Item -Recurse -Force $env:LOCALAPPDATA\mise\installs'
         platforms: [windows]
+      - cmd: rm -rf .mise.lock .mise.local.lock
       - echo "✓ Mise environment cleaned"
     desc: 'Clean Mise dependencies'
 

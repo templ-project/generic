@@ -245,9 +245,17 @@ def bootstrap(target_path, project_name=None):
     bootstrap_script = target_path / "bootstrap.py"
     remove_if_exists(bootstrap_script)
 
-    # Remove .uvx-install directory
-    install_dir = target_path / ".uvx-install"
+    # Remove _uvx_install directory
+    install_dir = target_path / "_uvx_install"
     remove_if_exists(install_dir)
+
+    # Remove legacy install directories
+    legacy_dirs = [
+        target_path / "uvx_install",
+        target_path / ".uvx-install",
+    ]
+    for legacy_dir in legacy_dirs:
+        remove_if_exists(legacy_dir)
 
     # Remove _install directory if it exists (legacy)
     old_install_dir = target_path / "_install"

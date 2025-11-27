@@ -121,7 +121,7 @@ mise exec -- npx husky install
 .scripts/                # Linting scripts
   ├── lint-shellcheck.sh
   └── lint-powershell.ps1
-.uvx-install/            # Bootstrap script
+_uvx_install/            # Bootstrap script (auto-removed after install)
 docs/                    # Documentation source
 Taskfile.yml             # Task definitions
 .mise.toml               # Tool versions
