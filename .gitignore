@@ -58,3 +58,9 @@ docs-html/
 # mise local configs
 .mise.local.toml
 mise.local.toml
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

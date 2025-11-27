@@ -1,3 +1,7 @@
 '*.{json,md,toml,yaml,yml}':
   - prettier --write
   - eslint --fix
+'*.sh':
+  - task shlint_py -- --fix
+'*.ps1':
+  - task pwshlint_py -- --fix

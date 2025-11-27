@@ -9,6 +9,7 @@
 
 $ErrorActionPreference = 'Stop'
 
+
 # Get the directory where this script is located
 $ScriptDir = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
 
