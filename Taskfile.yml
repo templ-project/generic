@@ -60,7 +60,7 @@ tasks:
       - cmd: echo "This is PowerShell, building is not necessary for scripts."
         platforms: [windows]
     sources:
-      - src/**/*
+      - src/**/*.{sh,ps1}
 
   # ============================================================================
   # Clean Tasks
@@ -69,7 +69,14 @@ tasks:
   clean:
     desc: 'Clean all build artifacts'
     cmds:
-      - cmd: echo "Cleaning ..."
+      - cmd: |
+          echo "🧹 Cleaning build artifacts...
+          rm -rf \
+            .task \
+            build \
+            dist \
+            docs-html
+          echo "✓ Build artifacts cleaned"
 
   # ============================================================================
   # Code Quality Tasks
@@ -93,6 +100,9 @@ tasks:
     cmds:
       - |
         {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}} "./**/*.{json,toml,yaml,yml}"
+    silent: true
+    sources:
+      - '**/*.{json,md,toml,yaml,yml}'
 
   format:check:
     cmds:
@@ -131,6 +141,8 @@ tasks:
         {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}} "./**/*.{json,toml,yaml,yml}"
     desc: 'Run ESLint'
     silent: true
+    sources:
+      - '**/*.{json,md,toml,yaml,yml}'
 
   lint:pwshlint:
     aliases: [lint:pwsh]
@@ -148,6 +160,8 @@ tasks:
         {{.__TF_MISE_E_UV_RUN}} .scripts/pwshlint.py {{.CLI_ARGS}}
     desc: 'Run PSScriptAnalyzer'
     silent: true
+    sources:
+      - src/**/*.ps1
 
   lint:shlint:
     aliases: [lint:sh, lint:bash]
@@ -166,6 +180,8 @@ tasks:
         platforms: [darwin, linux, windows]
     desc: 'Run ShellCheck'
     silent: true
+    sources:
+      - src/**/*.sh
 
   lint:check:
     desc: 'Run linter without fixing'
@@ -314,6 +330,7 @@ tasks:
         platforms: [darwin, linux]
       - cmd: powershell -File 'Remove-Item -Recurse -Force $env:LOCALAPPDATA\mise\installs'
         platforms: [windows]
+      - cmd: rm -rf .mise.lock .mise.local.lock
       - echo "✓ Mise environment cleaned"
     desc: 'Clean Mise dependencies'
 

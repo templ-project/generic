@@ -8,6 +8,20 @@ on:
   workflow_dispatch: {}
 
 jobs:
+  test-scaffold:
+    name: Test Scaffold
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Test bootstrap help
+        run: uvx --from . bootstrap --help
+      - name: Test bootstrap execution
+        run: uvx --from . bootstrap ./test-project
+      - name: Test bootstrap execution (remote)
+        run: uvx --from git+${{ github.server_url }}/${{ github.repository }}.git bootstrap ./test-project-remote
+
   # Validation & Build matrix for different platforms
   build:
     name: Build
