@@ -87,27 +87,49 @@ tasks:
     desc: 'Format code and fix issues'
     cmds:
       - task: format:prettier
+      - task: format:ruff
       - cmd: echo "✅ Code format completed"
 
   format:prettier:
     cmds:
       - task: prettier
         vars:
-          CLI_ARGS: '--write'
+          CLI_ARGS: '--write .'
     desc: 'Format code using Prettier'
     silent: true
 
   prettier:
     cmds:
       - |
-        {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}} .
+        {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}}
+      - echo "- ✅ prettier format completed"
     silent: true
     sources:
       - '**/*.{json,md,toml,yaml,yml}'
 
+  format:ruff:
+    aliases: [format:py, format:python]
+    cmds:
+      - task: ruff
+        vars:
+          CLI_ARGS: 'format .'
+      - echo "- ✅ ruff format completed"
+    desc: 'Format Python code using Ruff'
+    silent: true
+
+  ruff:
+    cmds:
+      - |
+        {{.__TF_MISE_E_UV_RUN}} ruff {{.CLI_ARGS}}
+    desc: 'Run Ruff'
+    silent: true
+    sources:
+      - '**/*.py'
+
   format:check:
     cmds:
       - task: format:check:prettier
+      - task: format:check:ruff
       - cmd: echo "✅ Code format check completed"
     desc: 'Check code formatting without fixing'
 
@@ -115,14 +137,26 @@ tasks:
     cmds:
       - task: prettier
         vars:
-          CLI_ARGS: '--check'
+          CLI_ARGS: '--check .'
+      - echo "- ✅ prettier format check completed"
     desc: 'Check code formatting using Prettier'
+    silent: true
+
+  format:check:ruff:
+    aliases: [format:check:py, format:check:python]
+    cmds:
+      - task: ruff
+        vars:
+          CLI_ARGS: 'format --check .'
+      - echo "- ✅ ruff format check completed"
+    desc: 'Check Python code formatting using Ruff'
     silent: true
 
   lint:
     desc: 'Run linter and fix issues'
     cmds:
       - task: lint:eslint
+      - task: lint:pylint
       - task: lint:pwshlint
       - task: lint:shlint
       - cmd: echo "✅ Linting completed"
@@ -131,7 +165,7 @@ tasks:
     cmds:
       - task: eslint
         vars:
-          CLI_ARGS: '--fix'
+          CLI_ARGS: '--fix .'
       - echo "- ✅ eslint lint completed"
     desc: 'Lint code using ESLint'
     silent: true
@@ -139,11 +173,30 @@ tasks:
   eslint:
     cmds:
       - |
-        {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}} .
+        {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}}
     desc: 'Run ESLint'
     silent: true
     sources:
       - '**/*.{json,md,toml,yaml,yml}'
+
+  lint:pylint:
+    aliases: [lint:py, lint:python]
+    cmds:
+      - task: pylint
+        vars:
+          CLI_ARGS: '.'
+      - echo "- ✅ pylint lint completed"
+    desc: 'Lint Python scripts using pylint'
+    silent: true
+
+  pylint:
+    cmds:
+      - |
+        {{.__TF_MISE_E_UV_RUN}} pylint {{.CLI_ARGS}}
+    desc: 'Run pylint'
+    silent: true
+    sources:
+      - '**/*.py'
 
   lint:pwshlint:
     aliases: [lint:pwsh]
@@ -162,7 +215,7 @@ tasks:
     desc: 'Run PSScriptAnalyzer'
     silent: true
     sources:
-      - src/**/*.ps1
+      - '**/*.ps1'
 
   lint:shlint:
     aliases: [lint:sh, lint:bash]
@@ -182,22 +235,32 @@ tasks:
     desc: 'Run ShellCheck'
     silent: true
     sources:
-      - src/**/*.sh
+      - '**/*.sh'
 
   lint:check:
     desc: 'Run linter without fixing'
     cmds:
       - task: lint:check:eslint
+      - task: lint:check:pylint
       - task: lint:check:pwshlint
       - task: lint:check:shlint
       - cmd: echo "✅ Linting check completed"
 
   lint:check:eslint:
     cmds:
-      - |
-        {{.__TF_MISE_E}} npx eslint "./**/*.{toml,json,yaml,yml}"
+      - task: eslint
+        vars:
+          CLI_ARGS: '.'
       - echo "- ✅ eslint lint check completed"
     desc: 'Check code using ESLint'
+    silent: true
+
+  lint:check:pylint:
+    aliases: [lint:check:py, lint:check:python]
+    cmds:
+      - task: lint:pylint
+      - echo "- ✅ pylint lint check completed"
+    desc: 'Check Python scripts using pylint'
     silent: true
 
   lint:check:pwshlint:

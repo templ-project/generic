@@ -1,3 +1,9 @@
+"""File discovery utilities for linting scripts.
+
+This module provides functions to find files matching glob patterns
+while respecting common ignore directories.
+"""
+
 import glob
 import os
 from typing import List, Optional, Set
@@ -12,17 +18,39 @@ DEFAULT_IGNORES = [
     "node_modules",
     "target",
     "vendor",
-    "venv"
+    "venv",
 ]
 
+
 def is_ignored(path: str, ignore_patterns: Set[str]) -> bool:
+    """Check if a path should be ignored based on directory patterns.
+
+    Args:
+        path: The file path to check.
+        ignore_patterns: Set of directory names to ignore.
+
+    Returns:
+        True if any path component matches an ignore pattern.
+    """
     parts = path.split(os.sep)
     for part in parts:
         if part in ignore_patterns:
             return True
     return False
 
-def find_files(patterns: List[str], ignore_patterns: Optional[List[str]] = None) -> List[str]:
+
+def find_files(
+    patterns: List[str], ignore_patterns: Optional[List[str]] = None
+) -> List[str]:
+    """Find files matching glob patterns while ignoring specified directories.
+
+    Args:
+        patterns: List of file paths or glob patterns to match.
+        ignore_patterns: Additional directory names to ignore.
+
+    Returns:
+        Sorted list of matching file paths.
+    """
     if ignore_patterns is None:
         ignore_patterns = []
 
