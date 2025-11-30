@@ -52,7 +52,7 @@ tasks:
     cmds:
       - cmd: |
           echo "{{.__TF_HEADER_LINE}}"
-          echo "Building {{.RUST_PROJECT_NAME}} for {{OS}}/{{ARCH}} in {{.RUST_BUILD_TYPE}} mode"
+          echo "Building {{.RUST_PROJECT_NAME}} for {{OS}}/{{ARCH}}"
           echo "{{.__TF_HEADER_LINE}}"
       - task: print:env
       # TODO: add actual build commands here
@@ -388,11 +388,10 @@ tasks:
   deps:clean:mise:
     cmds:
       - echo "🧹 Cleaning Mise dependencies..."
-      - cmd: rm -rf ~/.local/share/mise/installs
-        platforms: [darwin, linux]
-      - cmd: powershell -File 'Remove-Item -Recurse -Force $env:LOCALAPPDATA\mise\installs'
-        platforms: [windows]
-      - cmd: rm -rf .mise.lock .mise.local.lock
+      - cmd: |
+          rm -rf \
+            ~/.local/share/mise/installs \
+            ~/AppData/mise/installs
       - echo "✓ Mise environment cleaned"
     desc: 'Clean Mise dependencies'
 
@@ -423,16 +422,7 @@ tasks:
     cmds:
       - |
         echo "📦 Installing Mise dependencies..."
-        if [ ! -f .mise.local.lock ] && [ ! -f .mise.lock ]; then
-          echo "⚠️  .mise.local.lock not found; sync won't generate .mise.lock automatically."
-          echo "Please create a .mise.local.lock file or a .mise.lock file to proceed."
-          echo ""
-          echo "[settings]"
-          echo "experimental = true"
-          echo "lockfile = true"
-          echo ""
-          exit 1
-        fi
+        touch mise.lock
         mise trust && mise install --yes
         echo "✓ Mise environment ready"
     desc: 'Install Mise dependencies'
@@ -442,7 +432,7 @@ tasks:
       - |
         echo "📦 Installing NodeJs dependencies..."
         {{.__TF_MISE_E}} npm install
-        npx husky
+        {{.__TF_MISE_E}} npx husky
         echo "✓ NodeJs environment ready"
     desc: 'Install NodeJs dependencies'
 
@@ -458,13 +448,15 @@ tasks:
     cmds:
       - task: deps:refresh:mise
       - task: deps:refresh:npm
+      - task: deps:refresh:uv
     desc: 'Refresh all project dependencies'
 
   deps:refresh:mise:
     cmds:
       - |
         echo "🔄 Refreshing Mise packages..."
-        mise upgrade
+        touch mise.lock
+        mise trust && mise upgrade
         echo "✓ Packages refreshed"
     desc: 'Refresh all Mise packages (update dependencies)'
 

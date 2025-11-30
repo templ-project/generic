@@ -49,7 +49,7 @@ runs:
     continue-on-error: true
     if: ${{ runner.os != 'Windows' }}
     with:
-      key: generic-${{ runner.os }}-${{ runner.arch }}-mise-${{ hashFiles('.mise.lock') }}
+      key: generic-${{ runner.os }}-${{ runner.arch }}-mise-${{ hashFiles('mise.lock') }}
       restore-keys: |
         generic-${{ runner.os }}-${{ runner.arch }}-mise-
       path: |
@@ -60,7 +60,7 @@ runs:
     continue-on-error: true
     if: ${{ runner.os == 'Windows' }}
     with:
-      key: generic-${{ runner.os }}-${{ runner.arch }}-mise-${{ hashFiles('.mise.lock') }}
+      key: generic-${{ runner.os }}-${{ runner.arch }}-mise-${{ hashFiles('mise.lock') }}
       restore-keys: |
         generic-${{ runner.os }}-${{ runner.arch }}-mise-
       path: |
@@ -85,7 +85,7 @@ runs:
     with:
       key: generic-${{ runner.os }}-${{ runner.arch }}-node-${{ hashFiles('package-lock.json') }}
       restore-keys: |
-        ${{ runner.os }}-${{ runner.arch }}-node-
+        generic-${{ runner.os }}-${{ runner.arch }}-node-
       path: |
         node_modules
 

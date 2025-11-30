@@ -17,6 +17,7 @@ pids
 
 # Coverage files
 lib-cov
+.coverage
 coverage
 *.lcov
 
@@ -28,7 +29,8 @@ node_modules/
 .task/
 
 # Build Folders
-/build/
+build/
+dist/
 
 # Optional eslint cache
 .eslintcache
@@ -42,9 +44,6 @@ node_modules/
 .env
 .env.*
 !.env.example
-
-# Firebase cache directory
-.firebase/
 
 # Jscpd reports
 .jscpd/html/
@@ -64,3 +63,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
