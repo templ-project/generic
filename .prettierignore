@@ -17,6 +17,7 @@
 .ruff_cache/
 .shellcheckrc
 .venv/
+_uvx_install/
 LICENSE
 VERSION
 coverage/
