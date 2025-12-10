@@ -29,8 +29,8 @@ node_modules/
 .task/
 
 # Build Folders
-build/
-dist/
+/build/
+/dist/
 
 # Optional eslint cache
 .eslintcache

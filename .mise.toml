@@ -1,11 +1,6 @@
 [settings]
-# TODO: need experimental mode to support lock file -> can be solved using mise.local.toml
-# TRICKY:
-# This one breaks tools.http:llvm/llvm-project installation due to mise bug probably
-# experimental = true
-# This one I needs to be tested; but I haven't seen it working last time
+experimental = true
 lockfile = true
-# TRICKYend
 
 ############################################################################
 # Tools Configuration                                                      #
@@ -63,4 +58,6 @@ windows-x64 = { asset_pattern = "PowerShell-*-win-x64.zip" }
 # Hooks                                                    #
 ############################################################################
 [hooks]
-postinstall = "{% if os() != 'windows' %}chmod -R 755 $(mise bin-paths github:PowerShell/PowerShell)/pwsh; echo 'chown -R 755 pwsh'{% endif %}"
+postinstall = "{% if os() != 'windows' %}chmod -R 755 $(mise bin-paths github:PowerShell/PowerShell)/pwsh 2>/dev/null || true{% endif %}"
+
+#   enter = "rustup component add rust-analyzer 2>/dev/null || true"
