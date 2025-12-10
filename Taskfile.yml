@@ -3,8 +3,8 @@ version: '3'
 vars:
   # mise dependent
   __TF_MISE_E: 'mise trust; mise exec --'
-  __TF_MISE_E_PWSH: 'mise trust; mise exec -- pwsh -ExecutionPolicy Bypass -Command'
-  __TF_MISE_E_PWSH_FILE: 'mise trust; mise exec -- pwsh -ExecutionPolicy Bypass -File'
+  __TF_MISE_E_PWSH: 'mise trust; mise exec -- pwsh -NoProfile -ExecutionPolicy Bypass -Command'
+  __TF_MISE_E_PWSH_FILE: 'mise trust; mise exec -- pwsh -NoProfile -ExecutionPolicy Bypass -File'
   __TF_MISE_E_UV_RUN: 'mise trust; mise exec -- uv run'
   # os dependent
 
@@ -298,11 +298,30 @@ tasks:
   # ============================================================================
 
   test:
-    desc: 'Run tests with coverage'
+    desc: 'Run tests'
     cmds:
-      - task: build
-      # TODO: add actual test commands here
-      - cmd: echo "Didn't include testing for bash/pwsh."
+      - task: test:bats
+      - task: test:pester
+      - cmd: echo "✅ All tests completed"
+
+  test:bats:
+    aliases: [test:bash]
+    cmds:
+      - cmd: |
+          {{.__TF_MISE_E}} npx -y bats test/*.bats
+        platforms: [darwin, linux]
+      - cmd: |
+          echo "Skipping Bats tests on Windows (bash testing not supported)."
+        platforms: [windows]
+    desc: 'Run Bats tests for bash scripts'
+    silent: true
+
+  test:pester:
+    aliases: [test:pwsh, test:powershell]
+    cmds:
+      - cmd: |
+          {{.__TF_MISE_E_PWSH_FILE}} .scripts/run-pester.ps1
+    desc: 'Run Pester tests for PowerShell scripts'
 
   test:gen-coverage:
     cmds:

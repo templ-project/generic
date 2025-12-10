@@ -1,4 +1,5 @@
 # Ignore files that don't need formatting
+*.bats
 *.lock
 *.log
 *.ps1
