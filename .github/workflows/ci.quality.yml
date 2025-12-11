@@ -93,7 +93,6 @@ jobs:
 
       - name: Check Code Formatting
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
         run: |
           task format:check
@@ -103,8 +102,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
-        run: |
-          task lint:check
+        run: task lint:check
         shell: bash
 
   test:
@@ -119,17 +117,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONIOENCODING: utf-8
-        run: |
-          task test
-        shell: bash
-
-      - name: Run Tests with Coverage
-        if: inputs.runs-on == 'ubuntu-latest'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYTHONIOENCODING: utf-8
-        run: |
-          task test:gen-coverage
+        run: task test test:gen-coverage
         shell: bash
 
   duplicate-check:
