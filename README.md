@@ -1,17 +1,22 @@
-# Generic Template
+# Generic Shell Script Template
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/templ-project/generic/actions/workflows/ci.yml/badge.svg)](https://github.com/templ-project/generic/actions/workflows/ci.yml)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/templ-project/generic/issues)
 
-> A modern, cross-platform project template with comprehensive tooling, linting, and quality checks built-in.
+> A modern, cross-platform template for Bash and PowerShell script projects with comprehensive tooling, testing, linting, and CI/CD built-in.
 
-- [Generic Template](#generic-template)
+- [Generic Shell Script Template](#generic-shell-script-template)
   - [Quick Start](#quick-start)
   - [What's Included](#whats-included)
   - [Common Commands](#common-commands)
   - [Requirements](#requirements)
   - [Setup Development Environment](#setup-development-environment)
   - [Project Structure](#project-structure)
+  - [Testing](#testing)
+    - [Bash Tests (Bats)](#bash-tests-bats)
+    - [PowerShell Tests (Pester)](#powershell-tests-pester)
+  - [CI/CD Pipeline](#cicd-pipeline)
   - [Pre-commit Hooks](#pre-commit-hooks)
   - [Configuration](#configuration)
   - [License](#license)
@@ -21,21 +26,14 @@
 
 **Bootstrap a new project:**
 
-Bootstrap in current directory
-
 ```bash
+# Bootstrap in current directory
 uvx --from git+https://github.com/templ-project/generic.git bootstrap .
-```
 
-Bootstrap in specific directory
-
-```bash
+# Bootstrap in specific directory
 uvx --from git+https://github.com/templ-project/generic.git bootstrap ./my-project
-```
 
-Bootstrap with custom project name
-
-```bash
+# Bootstrap with custom project name
 uvx --from git+https://github.com/templ-project/generic.git bootstrap --project-name my-awesome-project ./target-dir
 ```
 
@@ -44,108 +42,215 @@ uvx --from git+https://github.com/templ-project/generic.git bootstrap --project-
 ```bash
 cd my-project
 git init
+task deps:sync        # Install all dependencies (mise, npm, uv)
 git add .
 git commit -m "Initial commit"
-mise install
-npm install
 ```
 
-That's it! You now have a fully configured project with linting, formatting, and quality tools.
+That's it! You now have a fully configured shell script project.
 
 ## What's Included
 
-- ✅ **Task Runner** - Modern [Taskfile](https://taskfile.dev/) for build automation
-- ✅ **Tool Management** - [mise](https://mise.jdx.dev/) for development environment
-- ✅ **Shell Linting** - ShellCheck with auto-fix support
-- ✅ **PowerShell Linting** - PSScriptAnalyzer with cross-platform support
-- ✅ **Code Formatting** - Prettier + ESLint for JSON/YAML/Markdown
-- ✅ **Pre-commit Hooks** - Husky + lint-staged for automatic validation
-- ✅ **Duplicate Detection** - jscpd with badge generation
-- ✅ **Documentation** - MkDocs with Material theme
-- ✅ **Cross-Platform** - Works on Linux, macOS, and Windows/WSL
+| Feature                 | Tool                                                                                              | Description                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| **Task Runner**         | [Taskfile](https://taskfile.dev/)                                                                 | Modern build automation               |
+| **Tool Management**     | [mise](https://mise.jdx.dev/)                                                                     | Isolated development environment      |
+| **Shell Linting**       | [ShellCheck](https://www.shellcheck.net/)                                                         | Bash/sh static analysis with auto-fix |
+| **PowerShell Linting**  | [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer)                                | PowerShell best practices             |
+| **Python Linting**      | [Pylint](https://pylint.org/) + [Ruff](https://docs.astral.sh/ruff/)                              | For helper scripts                    |
+| **Code Formatting**     | [Prettier](https://prettier.io/)                                                                  | JSON, YAML, Markdown formatting       |
+| **Bash Testing**        | [Bats-core](https://github.com/bats-core/bats-core)                                               | Bash Automated Testing System         |
+| **PowerShell Testing**  | [Pester](https://pester.dev/)                                                                     | PowerShell testing framework          |
+| **Pre-commit Hooks**    | [Husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/okonet/lint-staged) | Automatic validation                  |
+| **Duplicate Detection** | [jscpd](https://github.com/kucherenko/jscpd)                                                      | Copy-paste detector                   |
+| **Documentation**       | [MkDocs](https://www.mkdocs.org/)                                                                 | Material theme docs                   |
+| **CI/CD**               | GitHub Actions                                                                                    | Multi-platform testing & releases     |
 
 ## Common Commands
 
 ```bash
-# Code formatting
-task format              # Format all code (prettier)
+# === Development ===
+task run                 # Run the CLI script
+task build               # Build/validate project
+
+# === Code Formatting ===
+task format              # Format all code (Prettier, Ruff)
 task format:check        # Check formatting without fixing
 
-# Linting
-task lint                # Lint all code (md, json, yaml, shellcheck, powershell)
+# === Linting ===
+task lint                # Lint all code (ESLint, Pylint, ShellCheck, PSScriptAnalyzer)
 task lint:check          # Check all without fixing
+task lint:shlint         # Lint bash scripts only
+task lint:pwshlint       # Lint PowerShell scripts only
 
-# Code quality
+# === Testing ===
+task test                # Run all tests (Bats + Pester)
+task test:bats           # Run Bash tests only
+task test:pester         # Run PowerShell tests only
+
+# === Code Quality ===
 task duplicate-check     # Check for duplicate code
 
-# Documentation
+# === Documentation ===
 task docs                # Build documentation
 task docs:serve          # Serve documentation locally
-task docs:deploy         # Deploy to GitHub Pages
 
-# Full validation
-task validate            # Run complete CI pipeline
+# === Full Validation ===
+task validate            # Run complete CI pipeline locally
+
+# === Dependencies ===
+task deps:sync           # Install all dependencies
+task deps:refresh        # Update all dependencies
+task deps:clean          # Remove all dependencies
 ```
 
 ## Requirements
 
-- [mise](https://mise.jdx.dev/) - For tool version management
-- [Task](https://taskfile.dev/) - Task runner (installed via mise)
-- [Node.js](https://nodejs.org/) - For linting tools (installed via mise)
-- [PowerShell Core](https://github.com/PowerShell/PowerShell) - For cross-platform scripting (installed via mise)
+- [mise](https://mise.jdx.dev/) - Tool version management (installs everything else)
+- [Task](https://taskfile.dev/) - Task runner (can be installed via mise or standalone)
+
+**Automatically installed via mise:**
+
+- Node.js (for ESLint, Prettier, jscpd)
+- Python 3.11+ (for linting scripts, docs)
+- ShellCheck (bash linting)
+- PowerShell Core (cross-platform PowerShell)
 
 ## Setup Development Environment
 
 ```bash
 # Install mise (if not already installed)
+# Linux/macOS:
 curl https://mise.run | sh
 
-# Install all required tools
-mise install
+# Windows (PowerShell):
+winget install jdx.mise
+# or: choco install mise
 
-# Install Node.js dependencies
-mise exec -- npm install
+# Install Task runner
+# https://taskfile.dev/installation/
 
-# Install Python dependencies (for docs)
-mise exec -- task uv:sync
+# Clone and setup
+git clone https://github.com/templ-project/generic.git my-project
+cd my-project
 
-# Install pre-commit hooks
-mise exec -- npx husky install
+# Install all dependencies
+task deps:sync
+
+# Verify setup
+task validate
 ```
 
 ## Project Structure
 
 ```text
-.github/                 # GitHub templates and workflows
-.husky/                  # Git hooks
-.scripts/                # Linting scripts
-  ├── lint-shellcheck.sh
-  └── lint-powershell.ps1
-_uvx_install/            # Bootstrap script (auto-removed after install)
-docs/                    # Documentation source
-Taskfile.yml             # Task definitions
-.mise.toml               # Tool versions
-.lintstagedrc.yml        # Staged file linting config
+├── .github/
+│   └── workflows/        # CI/CD pipelines
+│       ├── ci.yml        # Main CI orchestrator
+│       ├── ci.quality.yml# Lint, test, build jobs
+│       ├── ci.release.yml# GitHub release publishing
+│       └── ci.version.yml# Semantic versioning (Bumpalicious)
+├── .scripts/             # Build/lint helper scripts
+│   ├── shlint.py         # ShellCheck wrapper with auto-fix
+│   ├── pwshlint.py       # PSScriptAnalyzer wrapper
+│   ├── run-pester.ps1    # Pester test runner
+│   └── fix-mise-pwsh.*   # mise PowerShell installation fix
+├── src/                  # Source scripts
+│   ├── cli.sh            # Bash CLI entrypoint
+│   ├── cli.ps1           # PowerShell CLI entrypoint
+│   ├── greeter.sh        # Bash library module
+│   └── greeter.ps1       # PowerShell library module
+├── test/                 # Test files
+│   ├── greeter.test.bats # Bash tests (Bats)
+│   └── greeter.Tests.ps1 # PowerShell tests (Pester)
+├── docs/                 # Documentation source
+├── _uvx_install/         # Bootstrap script (for uvx)
+├── Taskfile.yml          # Task definitions
+├── .mise.toml            # Tool versions & hooks
+├── package.json          # Node.js dev dependencies
+├── pyproject.toml        # Python config & dependencies
+└── VERSION               # Project version (semver)
 ```
+
+## Testing
+
+### Bash Tests (Bats)
+
+Tests are in `test/*.bats`:
+
+```bash
+# test/greeter.test.bats
+@test "hello returns greeting" {
+  source src/greeter.sh
+  result="$(hello "World")"
+  [ "$result" = "Hello, World!" ]
+}
+```
+
+Run with: `task test:bats`
+
+### PowerShell Tests (Pester)
+
+Tests are in `test/*.Tests.ps1`:
+
+```powershell
+# test/greeter.Tests.ps1
+Describe "Hello function" {
+    It "Returns greeting" {
+        . src/greeter.ps1
+        Hello -Name "World" | Should -Be "Hello, World!"
+    }
+}
+```
+
+Run with: `task test:pester`
+
+## CI/CD Pipeline
+
+The GitHub Actions pipeline runs on **Linux, macOS, and Windows**:
+
+| Workflow         | Trigger                 | Jobs                                                                               |
+| ---------------- | ----------------------- | ---------------------------------------------------------------------------------- |
+| `ci.yml`         | Push/PR to main/develop | Matrix orchestrator                                                                |
+| `ci.quality.yml` | Called by ci.yml        | lint, test, build, duplicate-check                                                 |
+| `ci.version.yml` | Push to main            | Semantic version bump ([Bumpalicious](https://github.com/dragoscops/bumpalicious)) |
+| `ci.release.yml` | After version bump      | Create GitHub release with archives                                                |
+
+**Release artifacts:**
+
+- `{project}-{version}.tar.gz` - Unix archive
+- `{project}-{version}.zip` - Windows archive
+
+Both contain the `src/` scripts, `README.md`, and `LICENSE`.
 
 ## Pre-commit Hooks
 
-The template includes automatic pre-commit validation via Husky:
+Automatic validation via Husky + lint-staged:
 
-- Code formatting (Prettier)
-- Linting (ESLint, ShellCheck, PowerShell)
-- Duplicate code detection
+| File Type                 | Tools Run           |
+| ------------------------- | ------------------- |
+| `*.sh`, `*.bats`          | ShellCheck          |
+| `*.ps1`                   | PSScriptAnalyzer    |
+| `*.py`                    | Ruff format, Pylint |
+| `*.json`, `*.yml`, `*.md` | Prettier, ESLint    |
 
-Configure what runs in [.lintstagedrc.yml](.lintstagedrc.yml) and [.husky/pre-commit](.husky/pre-commit).
+Configure in:
+
+- `.husky/pre-commit` - Hook script
+- `.lintstagedrc.yml` - File patterns and commands
 
 ## Configuration
 
-All configuration uses shared packages for consistency:
-
-- **ESLint**: `@templ-project/eslint`
-- **Prettier**: `@templ-project/prettier`
-- **ShellCheck**: `.shellcheckrc`
-- **PSScriptAnalyzer**: `.PSScriptAnalyzerSettings.psd1`
+| File                             | Purpose                                              |
+| -------------------------------- | ---------------------------------------------------- |
+| `.mise.toml`                     | Tool versions (Node, Python, ShellCheck, PowerShell) |
+| `Taskfile.yml`                   | Task definitions                                     |
+| `.shellcheckrc`                  | ShellCheck rules                                     |
+| `.PSScriptAnalyzerSettings.psd1` | PSScriptAnalyzer rules                               |
+| `pyproject.toml`                 | Python tools (Pylint, Ruff, Black)                   |
+| `eslint.config.mjs`              | ESLint config (uses `@templ-project/eslint`)         |
+| `prettier.config.mjs`            | Prettier config (uses `@templ-project/prettier`)     |
+| `.jscpd.json`                    | Duplicate detection settings                         |
 
 ## License
 
@@ -154,5 +259,5 @@ MIT © [Templ Project](https://github.com/templ-project)
 ## Support
 
 - 🐛 [Report Issues](https://github.com/templ-project/generic/issues)
-- 📖 [Read the Docs](https://github.com/templ-project/generic#readme)
+- 📖 [Documentation](https://templ-project.github.io/generic/)
 - ⭐ [Star on GitHub](https://github.com/templ-project/generic)
