@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* updated readme as well ([21a52f9](https://github.com/templ-project/generic/commit/21a52f995fdaf90c590da80714f20868ce4577ef))
+- updated readme as well ([21a52f9](https://github.com/templ-project/generic/commit/21a52f995fdaf90c590da80714f20868ce4577ef))
 
 ## 0.0.15 (2025-11-23)
 
