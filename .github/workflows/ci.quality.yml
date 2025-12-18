@@ -77,7 +77,7 @@ jobs:
 
       - name: Upload distribution artifacts
         if: inputs.runs-on == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-archives
           path: dist/*
