@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.17 (2025-12-20)
+
+### Bug Fixes
+
+* sort all config files alphabetically for consistency and maintainability ([d1d9c6a](https://github.com/templ-project/generic/commit/d1d9c6a6f625585a101f1988954dd973e4bc6a66))
+
 ## 0.0.16 (2025-12-11)
 
 ### Bug Fixes
