@@ -7,45 +7,16 @@ vars:
   __TF_MISE_E_PWSH_FILE: 'mise trust; mise exec -- pwsh -NoProfile -ExecutionPolicy Bypass -File'
   __TF_MISE_E_UV_RUN: 'mise trust; mise exec -- uv run'
   # os dependent
-
+  __TF_HEADER_LINE: '=============================================================='
+  __TF_SEP: ' '
   __TF_VAR_PREFIX:
     sh: |
       echo "{{if eq OS "windows"}}\${{else}}{{end}}"
-  __TF_HEADER_LINE: '=============================================================='
-  __TF_SEP: ' '
 
 tasks:
-  # ==========================================================================
-  # Generic Tasks
-  # ==========================================================================
-
-  print:env:
-    cmds:
-      - cmd: |
-          {{.__TF_MISE_E}} env | sort
-        platforms: [darwin, linux]
-      - cmd: |
-          {{.__TF_MISE_E}} {{ .__TF_SEP
-            }}pwsh -Command '$BashPath=(Get-Command bash -ErrorAction SilentlyContinue).Path;{{ .__TF_SEP
-              }}if ($BashPath) { & $BashPath -c "env | sort" }{{ .__TF_SEP
-              }}else { Get-ChildItem "Env:" | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Value)" } }'
-        platforms: [windows]
-    desc: 'Print current build environment variables'
-
-  pwsh:
-    desc: 'Run PowerShell scripts'
-    vars:
-      CODE: '{{.CODE | default "echo \"Hello from PowerShell!\""}}'
-    cmds:
-      - cmd: |
-          temp=$(mktemp)
-          echo $temp
-          # {{.__TF_MISE_E}} pwsh -Command "{{.CODE}}"
-    silent: true
-
-  # ==========================================================================
+  # ============================================================================
   # Build Tasks
-  # ==========================================================================
+  # ============================================================================
 
   build:
     desc: 'Build project'
@@ -71,85 +42,83 @@ tasks:
     desc: 'Clean all build artifacts'
     cmds:
       - cmd: |
-          echo "🧹 Cleaning build artifacts..."
+          echo "Cleaning build artifacts..."
           rm -rf \
             .task \
             build \
             dist \
             docs-html
-          echo "✓ Build artifacts cleaned"
+          echo "Build artifacts cleaned"
 
   # ============================================================================
   # Code Quality Tasks
   # ============================================================================
+
+  duplicate-check:
+    desc: 'Check for duplicate code using jscpd'
+    cmds:
+      - |
+        {{.__TF_MISE_E}} npm run duplicate-check
+      - git add .jscpd/jscpd-badge.svg 2>/dev/null || true
+
+  eslint:
+    desc: 'Run ESLint'
+    cmds:
+      - |
+        {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}}
+    silent: true
+    sources:
+      - '**/*.{json,md,toml,yaml,yml}'
 
   format:
     desc: 'Format code and fix issues'
     cmds:
       - task: format:prettier
       - task: format:ruff
-      - cmd: echo "✅ Code format completed"
-
-  format:prettier:
-    cmds:
-      - task: prettier
-        vars:
-          CLI_ARGS: '--write .'
-    desc: 'Format code using Prettier'
-    silent: true
-
-  prettier:
-    cmds:
-      - |
-        {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}}
-      - echo "- ✅ prettier format completed"
-    silent: true
-    sources:
-      - '**/*.{json,md,toml,yaml,yml}'
-
-  format:ruff:
-    aliases: [format:py, format:python]
-    cmds:
-      - task: ruff
-        vars:
-          CLI_ARGS: 'format .'
-      - echo "- ✅ ruff format completed"
-    desc: 'Format Python code using Ruff'
-    silent: true
-
-  ruff:
-    cmds:
-      - |
-        {{.__TF_MISE_E_UV_RUN}} ruff {{.CLI_ARGS}}
-    desc: 'Run Ruff'
-    silent: true
-    sources:
-      - '**/*.py'
+      - cmd: echo "Code format completed"
 
   format:check:
+    desc: 'Check code formatting without fixing'
     cmds:
       - task: format:check:prettier
       - task: format:check:ruff
-      - cmd: echo "✅ Code format check completed"
-    desc: 'Check code formatting without fixing'
+      - cmd: echo "Code format check completed"
 
   format:check:prettier:
+    desc: 'Check code formatting using Prettier'
     cmds:
       - task: prettier
         vars:
           CLI_ARGS: '--check .'
-      - echo "- ✅ prettier format check completed"
-    desc: 'Check code formatting using Prettier'
+      - echo "- prettier format check completed"
     silent: true
 
   format:check:ruff:
     aliases: [format:check:py, format:check:python]
+    desc: 'Check Python code formatting using Ruff'
     cmds:
       - task: ruff
         vars:
           CLI_ARGS: 'format --check .'
-      - echo "- ✅ ruff format check completed"
-    desc: 'Check Python code formatting using Ruff'
+      - echo "- ruff format check completed"
+    silent: true
+
+  format:prettier:
+    desc: 'Format code using Prettier'
+    cmds:
+      - task: prettier
+        vars:
+          CLI_ARGS: '--write .'
+    silent: true
+
+  format:ruff:
+    aliases: [format:py, format:python]
+    desc: 'Format Python code using Ruff'
+    cmds:
+      - task: ruff
+        vars:
+          CLI_ARGS: 'format .'
+      - echo "- ruff format completed"
     silent: true
 
   lint:
@@ -159,83 +128,7 @@ tasks:
       - task: lint:pylint
       - task: lint:pwshlint
       - task: lint:shlint
-      - cmd: echo "✅ Linting completed"
-
-  lint:eslint:
-    cmds:
-      - task: eslint
-        vars:
-          CLI_ARGS: '--fix .'
-      - echo "- ✅ eslint lint completed"
-    desc: 'Lint code using ESLint'
-    silent: true
-
-  eslint:
-    cmds:
-      - |
-        {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}}
-    desc: 'Run ESLint'
-    silent: true
-    sources:
-      - '**/*.{json,md,toml,yaml,yml}'
-
-  lint:pylint:
-    aliases: [lint:py, lint:python]
-    cmds:
-      - task: pylint
-        vars:
-          CLI_ARGS: '.'
-      - echo "- ✅ pylint lint completed"
-    desc: 'Lint Python scripts using pylint'
-    silent: true
-
-  pylint:
-    cmds:
-      - |
-        {{.__TF_MISE_E_UV_RUN}} pylint {{.CLI_ARGS}}
-    desc: 'Run pylint'
-    silent: true
-    sources:
-      - '**/*.py'
-
-  lint:pwshlint:
-    aliases: [lint:pwsh]
-    cmds:
-      - task: pwshlint_py
-        vars:
-          CLI_ARGS: '--fix'
-      - echo "- ✅ pwsh lint completed"
-    desc: 'Lint PowerShell scripts using PSScriptAnalyzer'
-    silent: true
-
-  pwshlint_py:
-    cmds:
-      - |
-        {{.__TF_MISE_E_UV_RUN}} .scripts/pwshlint.py {{.CLI_ARGS}}
-    desc: 'Run PSScriptAnalyzer'
-    silent: true
-    sources:
-      - '**/*.ps1'
-
-  lint:shlint:
-    aliases: [lint:sh, lint:bash]
-    cmds:
-      - task: shlint_py
-        vars:
-          CLI_ARGS: '--fix'
-      - echo "- ✅ bash lint completed"
-    desc: 'Lint shell scripts using ShellCheck'
-    silent: true
-
-  shlint_py:
-    cmds:
-      - cmd: |
-          {{.__TF_MISE_E}} python .scripts/shlint.py {{.CLI_ARGS}}
-        platforms: [darwin, linux, windows]
-    desc: 'Run ShellCheck'
-    silent: true
-    sources:
-      - '**/*.sh'
+      - cmd: echo "Linting completed"
 
   lint:check:
     desc: 'Run linter without fixing'
@@ -244,39 +137,78 @@ tasks:
       - task: lint:check:pylint
       - task: lint:check:pwshlint
       - task: lint:check:shlint
-      - cmd: echo "✅ Linting check completed"
+      - cmd: echo "Linting check completed"
 
   lint:check:eslint:
+    desc: 'Check code using ESLint'
     cmds:
       - task: eslint
         vars:
           CLI_ARGS: '.'
-      - echo "- ✅ eslint lint check completed"
-    desc: 'Check code using ESLint'
+      - echo "- eslint lint check completed"
     silent: true
 
   lint:check:pylint:
     aliases: [lint:check:py, lint:check:python]
+    desc: 'Check Python scripts using pylint'
     cmds:
       - task: lint:pylint
-      - echo "- ✅ pylint lint check completed"
-    desc: 'Check Python scripts using pylint'
+      - echo "- pylint lint check completed"
     silent: true
 
   lint:check:pwshlint:
     aliases: [lint:check:pwsh]
+    desc: 'Check PowerShell scripts using PSScriptAnalyzer'
     cmds:
       - task: pwshlint_py
-      - echo "- ✅ pwsh lint completed"
-    desc: 'Check PowerShell scripts using PSScriptAnalyzer'
+      - echo "- pwsh lint completed"
     silent: true
 
   lint:check:shlint:
-    aliases: [lint:check:sh, lint:check:bash]
+    aliases: [lint:check:bash, lint:check:sh]
+    desc: 'Check shell scripts using ShellCheck'
     cmds:
       - task: shlint_py
-      - echo "- ✅ bash lint completed"
-    desc: 'Check shell scripts using ShellCheck'
+      - echo "- bash lint completed"
+    silent: true
+
+  lint:eslint:
+    desc: 'Lint code using ESLint'
+    cmds:
+      - task: eslint
+        vars:
+          CLI_ARGS: '--fix .'
+      - echo "- eslint lint completed"
+    silent: true
+
+  lint:pylint:
+    aliases: [lint:py, lint:python]
+    desc: 'Lint Python scripts using pylint'
+    cmds:
+      - task: pylint
+        vars:
+          CLI_ARGS: '.'
+      - echo "- pylint lint completed"
+    silent: true
+
+  lint:pwshlint:
+    aliases: [lint:pwsh]
+    desc: 'Lint PowerShell scripts using PSScriptAnalyzer'
+    cmds:
+      - task: pwshlint_py
+        vars:
+          CLI_ARGS: '--fix'
+      - echo "- pwsh lint completed"
+    silent: true
+
+  lint:shlint:
+    aliases: [lint:bash, lint:sh]
+    desc: 'Lint shell scripts using ShellCheck'
+    cmds:
+      - task: shlint_py
+        vars:
+          CLI_ARGS: '--fix'
+      - echo "- bash lint completed"
     silent: true
 
   lint-staged:
@@ -286,53 +218,166 @@ tasks:
         {{.__TF_MISE_E}} npx -y lint-staged
     silent: true
 
-  duplicate-check:
+  prettier:
     cmds:
       - |
-        {{.__TF_MISE_E}} npm run duplicate-check
-      - git add .jscpd/jscpd-badge.svg 2>/dev/null || true
-    desc: 'Check for duplicate code using jscpd'
+        {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}}
+      - echo "- prettier format completed"
+    silent: true
+    sources:
+      - '**/*.{json,md,toml,yaml,yml}'
+
+  pylint:
+    desc: 'Run pylint'
+    cmds:
+      - |
+        {{.__TF_MISE_E_UV_RUN}} pylint {{.CLI_ARGS}}
+    silent: true
+    sources:
+      - '**/*.py'
+
+  pwshlint_py:
+    desc: 'Run PSScriptAnalyzer'
+    cmds:
+      - |
+        {{.__TF_MISE_E_UV_RUN}} .scripts/pwshlint.py {{.CLI_ARGS}}
+    silent: true
+    sources:
+      - '**/*.ps1'
+
+  ruff:
+    desc: 'Run Ruff'
+    cmds:
+      - |
+        {{.__TF_MISE_E_UV_RUN}} ruff {{.CLI_ARGS}}
+    silent: true
+    sources:
+      - '**/*.py'
+
+  shlint_py:
+    desc: 'Run ShellCheck'
+    cmds:
+      - cmd: |
+          {{.__TF_MISE_E}} python .scripts/shlint.py {{.CLI_ARGS}}
+        platforms: [darwin, linux, windows]
+    silent: true
+    sources:
+      - '**/*.sh'
 
   # ============================================================================
-  # Test Tasks
+  # Dependencies
   # ============================================================================
 
-  test:
-    desc: 'Run tests'
+  deps:clean:
+    desc: 'Clean all project dependencies'
     cmds:
-      - task: test:bats
-      - task: test:pester
-      - cmd: echo "✅ All tests completed"
+      - task: deps:clean:mise
+      - task: deps:clean:npm
+      - task: deps:clean:uv
 
-  test:bats:
-    aliases: [test:bash]
+  deps:clean:mise:
+    desc: 'Clean Mise dependencies'
     cmds:
+      - echo "Cleaning Mise dependencies..."
       - cmd: |
-          {{.__TF_MISE_E}} npx -y bats test/*.bats
-        platforms: [darwin, linux]
-      - cmd: |
-          echo "Skipping Bats tests on Windows (bash testing not supported)."
-        platforms: [windows]
-    desc: 'Run Bats tests for bash scripts'
-    silent: true
+          rm -rf \
+            ~/.local/share/mise/installs \
+            ~/AppData/mise/installs
+      - echo "Mise environment cleaned"
 
-  test:pester:
-    aliases: [test:pwsh, test:powershell]
+  deps:clean:npm:
+    desc: 'Clean NodeJs dependencies'
     cmds:
-      - cmd: |
-          {{.__TF_MISE_E_PWSH_FILE}} .scripts/run-pester.ps1
-    desc: 'Run Pester tests for PowerShell scripts'
+      - |
+        echo "Cleaning NodeJs dependencies..."
+        rm -rf node_modules package-lock.json
+        echo "NodeJs environment cleaned"
 
-  test:gen-coverage:
+  deps:clean:uv:
+    desc: 'Clean Python dependencies'
     cmds:
-      # TODO: add actual test+coverage commands here
-      - cmd: echo "Didn't include testing (and coverage) for bash/pwsh."
-    desc: 'Generate test coverage report'
-    silent: true
+      - |
+        echo "Cleaning Python dependencies..."
+        rm -rf .venv uv.lock
+        echo "Python environment cleaned"
+
+  deps:refresh:
+    desc: 'Refresh all project dependencies'
+    cmds:
+      - task: deps:refresh:mise
+      - task: deps:refresh:npm
+      - task: deps:refresh:uv
+
+  deps:refresh:mise:
+    desc: 'Refresh all Mise packages (update dependencies)'
+    cmds:
+      - |
+        echo "Refreshing Mise packages..."
+        touch mise.lock
+        mise trust && mise upgrade
+        echo "Packages refreshed"
+
+  deps:refresh:npm:
+    desc: 'Refresh all NodeJs packages (update dependencies)'
+    cmds:
+      - |
+        echo "Refreshing NodeJs packages..."
+        {{.__TF_MISE_E}} npm outdated \
+          && {{.__TF_MISE_E}} npm update \
+          && {{.__TF_MISE_E}} npm audit fix
+        echo "Packages refreshed"
+
+  deps:refresh:uv:
+    desc: 'Refresh all Python packages (update dependencies)'
+    cmds:
+      - |
+        echo "Refreshing Python packages..."
+        {{.__TF_MISE_E}} uv sync --upgrade
+        echo "Packages refreshed"
+
+  deps:sync:
+    desc: 'Install all project dependencies'
+    cmds:
+      - task: deps:sync:mise
+      - task: deps:sync:npm
+      - task: deps:sync:uv
+
+  deps:sync:mise:
+    desc: 'Install Mise dependencies'
+    cmds:
+      - |
+        echo "Installing Mise dependencies..."
+        touch mise.lock
+        mise trust && mise install --yes
+        echo "Mise environment ready"
+
+  deps:sync:npm:
+    desc: 'Install NodeJs dependencies'
+    cmds:
+      - |
+        echo "Installing NodeJs dependencies..."
+        {{.__TF_MISE_E}} npm install
+        {{.__TF_MISE_E}} npx husky
+        echo "NodeJs environment ready"
+
+  deps:sync:uv:
+    desc: 'Install Python dependencies'
+    cmds:
+      - |
+        echo "Installing Python dependencies..."
+        {{.__TF_MISE_E}} uv sync
+        echo "Python environment ready"
 
   # ============================================================================
   # Development Tools
   # ============================================================================
+
+  debug:
+    desc: 'Run application with debugger (gdb on Linux/macOS)'
+    cmds:
+      - task: build
+      # TODO: add actual run+debug commands here
+      - cmd: echo "Running (Debug mode)... "
 
   run:
     desc: 'Run application'
@@ -344,13 +389,6 @@ tasks:
       - cmd: |
           {{.__TF_MISE_E_PWSH_FILE}} src/cli.ps1
         platforms: [windows]
-
-  debug:
-    desc: 'Run application with debugger (gdb on Linux/macOS)'
-    cmds:
-      - task: build
-      # TODO: add actual run+debug commands here
-      - cmd: echo "Running (Debug mode)... "
 
   # ============================================================================
   # Documentation Tasks
@@ -366,15 +404,81 @@ tasks:
     desc: 'Serve documentation locally with live reload'
     cmds:
       - |
-        echo "📚 Starting documentation server..."
-        echo "📖 Open http://127.0.0.1:8000 in your browser"
+        echo "Starting documentation server..."
+        echo "Open http://127.0.0.1:8000 in your browser"
         {{.__TF_MISE_E}} uv run mkdocs serve
+
+  # ============================================================================
+  # Test Tasks
+  # ============================================================================
+
+  test:
+    desc: 'Run tests'
+    cmds:
+      - task: test:bats
+      - task: test:pester
+      - cmd: echo "All tests completed"
+
+  test:bats:
+    aliases: [test:bash]
+    desc: 'Run Bats tests for bash scripts'
+    cmds:
+      - cmd: |
+          {{.__TF_MISE_E}} npx -y bats test/*.bats
+        platforms: [darwin, linux]
+      - cmd: |
+          echo "Skipping Bats tests on Windows (bash testing not supported)."
+        platforms: [windows]
+    silent: true
+
+  test:gen-coverage:
+    desc: 'Generate test coverage report'
+    cmds:
+      # TODO: add actual test+coverage commands here
+      - cmd: echo "Didn't include testing (and coverage) for bash/pwsh."
+    silent: true
+
+  test:pester:
+    aliases: [test:powershell, test:pwsh]
+    desc: 'Run Pester tests for PowerShell scripts'
+    cmds:
+      - cmd: |
+          {{.__TF_MISE_E_PWSH_FILE}} .scripts/run-pester.ps1
+
+  # ============================================================================
+  # Utility Tasks
+  # ============================================================================
+
+  print:env:
+    desc: 'Print current build environment variables'
+    cmds:
+      - cmd: |
+          {{.__TF_MISE_E}} env | sort
+        platforms: [darwin, linux]
+      - cmd: |
+          {{.__TF_MISE_E}} {{ .__TF_SEP
+            }}pwsh -Command '$BashPath=(Get-Command bash -ErrorAction SilentlyContinue).Path;{{ .__TF_SEP
+              }}if ($BashPath) { & $BashPath -c "env | sort" }{{ .__TF_SEP
+              }}else { Get-ChildItem "Env:" | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Value)" } }'
+        platforms: [windows]
+
+  pwsh:
+    desc: 'Run PowerShell scripts'
+    vars:
+      CODE: '{{.CODE | default "echo \"Hello from PowerShell!\""}}'
+    cmds:
+      - cmd: |
+          temp=$(mktemp)
+          echo $temp
+          # {{.__TF_MISE_E}} pwsh -Command "{{.CODE}}"
+    silent: true
 
   # ============================================================================
   # Validation Tasks
   # ============================================================================
 
   validate:
+    desc: 'Run CI pipeline for specific build system and compiler'
     cmds:
       - task: format
       - task: clean
@@ -387,112 +491,7 @@ tasks:
       - cmd: |
           echo ""
           echo "{{.__TF_HEADER_LINE}}"
-          echo "✅ Validation successful"
+          echo "Validation successful"
           echo "{{.__TF_HEADER_LINE}}"
           echo ""
-    desc: 'Run CI pipeline for specific build system and compiler'
     silent: true
-
-  # ============================================================================
-  # Dependencies
-  # ============================================================================
-
-  deps:clean:
-    cmds:
-      - task: deps:clean:mise
-      - task: deps:clean:npm
-      - task: deps:clean:uv
-    desc: 'Clean all project dependencies'
-
-  deps:clean:mise:
-    cmds:
-      - echo "🧹 Cleaning Mise dependencies..."
-      - cmd: |
-          rm -rf \
-            ~/.local/share/mise/installs \
-            ~/AppData/mise/installs
-      - echo "✓ Mise environment cleaned"
-    desc: 'Clean Mise dependencies'
-
-  deps:clean:npm:
-    cmds:
-      - |
-        echo "🧹 Cleaning NodeJs dependencies..."
-        rm -rf node_modules package-lock.json
-        echo "✓ NodeJs environment cleaned"
-    desc: 'Clean NodeJs dependencies'
-
-  deps:clean:uv:
-    cmds:
-      - |
-        echo "🧹 Cleaning Python dependencies..."
-        rm -rf .venv uv.lock
-        echo "✓ Python environment cleaned"
-    desc: 'Clean Python dependencies'
-
-  deps:sync:
-    cmds:
-      - task: deps:sync:mise
-      - task: deps:sync:npm
-      - task: deps:sync:uv
-    desc: 'Install all project dependencies'
-
-  deps:sync:mise:
-    cmds:
-      - |
-        echo "📦 Installing Mise dependencies..."
-        touch mise.lock
-        mise trust && mise install --yes
-        echo "✓ Mise environment ready"
-    desc: 'Install Mise dependencies'
-
-  deps:sync:npm:
-    cmds:
-      - |
-        echo "📦 Installing NodeJs dependencies..."
-        {{.__TF_MISE_E}} npm install
-        {{.__TF_MISE_E}} npx husky
-        echo "✓ NodeJs environment ready"
-    desc: 'Install NodeJs dependencies'
-
-  deps:sync:uv:
-    cmds:
-      - |
-        echo "📦 Installing Python dependencies..."
-        {{.__TF_MISE_E}} uv sync
-        echo "✓ Python environment ready"
-    desc: 'Install Python dependencies'
-
-  deps:refresh:
-    cmds:
-      - task: deps:refresh:mise
-      - task: deps:refresh:npm
-      - task: deps:refresh:uv
-    desc: 'Refresh all project dependencies'
-
-  deps:refresh:mise:
-    cmds:
-      - |
-        echo "🔄 Refreshing Mise packages..."
-        touch mise.lock
-        mise trust && mise upgrade
-        echo "✓ Packages refreshed"
-    desc: 'Refresh all Mise packages (update dependencies)'
-
-  deps:refresh:npm:
-    cmds:
-      - |
-        echo "🔄 Refreshing NodeJs packages..."
-        {{.__TF_MISE_E}} npm outdated \
-          && {{.__TF_MISE_E}} npm update \
-          && {{.__TF_MISE_E}} npm audit fix
-        echo "✓ Packages refreshed"
-    desc: 'Refresh all NodeJs packages (update dependencies)'
-
-  deps:refresh:uv:
-    cmds:
-      - |
-        echo "🔄 Refreshing Python packages..."
-        {{.__TF_MISE_E}} uv sync --upgrade
-        echo "✓ Packages refreshed"
-    desc: 'Refresh all Python packages (update dependencies)'

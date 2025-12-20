@@ -1,40 +1,16 @@
-site_name: Generic Template
-site_description: Modern cross-platform project template
-site_author: Templ Project
-site_dir: docs-html
-repo_url: https://github.com/templ-project/generic
-repo_name: templ-project/generic
 edit_uri: edit/main/docs/
-
-theme:
-  name: material
-  palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.expand
-    - navigation.top
-    - search.suggest
-    - search.highlight
-    - content.code.copy
-    - content.code.annotate
-
-plugins:
-  - search
+repo_name: templ-project/generic
+repo_url: https://github.com/templ-project/generic
+site_author: Templ Project
+site_description: Modern cross-platform project template
+site_dir: docs-html
+site_name: Generic Template
 
 markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -44,13 +20,37 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-  - admonition
-  - pymdownx.details
-  - attr_list
-  - md_in_html
   - tables
   - toc:
       permalink: true
 
 nav:
   - Home: index.md
+
+plugins:
+  - search
+
+theme:
+  name: material
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - navigation.expand
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+    - search.suggest
+  palette:
+    - accent: indigo
+      primary: indigo
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - accent: indigo
+      primary: indigo
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode

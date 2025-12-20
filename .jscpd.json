@@ -1,11 +1,11 @@
 {
-  "threshold": 1,
-  "reporters": ["html", "console", "badge"],
-  "ignore": ["node_modules/**", "dist/**", "coverage/**", "**/*.min.js", "**/*.config.js", "**/*.config.mjs"],
   "absolute": true,
-  "gitignore": true,
-  "silent": false,
   "blame": true,
   "cache": true,
-  "output": ".jscpd"
+  "gitignore": true,
+  "ignore": ["**/*.config.js", "**/*.config.mjs", "**/*.min.js", "coverage/**", "dist/**", "node_modules/**"],
+  "output": ".jscpd",
+  "reporters": ["badge", "console", "html"],
+  "silent": false,
+  "threshold": 1
 }
