@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0 (2025-12-30)
+
+### Features
+
+* **generic:** refactor Taskfile into modular includes structure ([6adcd62](https://github.com/templ-project/generic/commit/6adcd6253348aeb5cf9bf0ac9a36d035428b09f7))
+
 ## 0.0.17 (2025-12-20)
 
 ### Bug Fixes
