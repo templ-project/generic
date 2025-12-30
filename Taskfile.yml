@@ -1,32 +1,48 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# ============================================================================
+# Generic Template - Taskfile
+# ============================================================================
+# This is the main Taskfile for the generic (shell/PowerShell) template.
+# Common tasks are imported from .taskfiles/ modules.
+# ============================================================================
 version: '3'
 
-vars:
-  # mise dependent
-  __TF_MISE_E: 'mise trust; mise exec --'
-  __TF_MISE_E_PWSH: 'mise trust; mise exec -- pwsh -NoProfile -ExecutionPolicy Bypass -Command'
-  __TF_MISE_E_PWSH_FILE: 'mise trust; mise exec -- pwsh -NoProfile -ExecutionPolicy Bypass -File'
-  __TF_MISE_E_UV_RUN: 'mise trust; mise exec -- uv run'
-  # os dependent
-  __TF_HEADER_LINE: '=============================================================='
-  __TF_SEP: ' '
-  __TF_VAR_PREFIX:
-    sh: |
-      echo "{{if eq OS "windows"}}\${{else}}{{end}}"
+includes:
+  # ==========================================================================
+  # Shared Modules (sync these to other projects)
+  # ==========================================================================
+  common:
+    taskfile: .taskfiles/Taskfile.common.yml
+    internal: true
+  deps:
+    taskfile: .taskfiles/Taskfile.deps.yml
+  quality:
+    taskfile: .taskfiles/Taskfile.quality.yml
+    internal: true
+  sync:
+    taskfile: .taskfiles/Taskfile.sync.yml
 
 tasks:
-  # ============================================================================
+  # ==========================================================================
   # Build Tasks
-  # ============================================================================
+  # ==========================================================================
 
   build:
     desc: 'Build project'
+    summary: |
+      Build the project
+
+      For the generic template, this is a placeholder that echoes the
+      build environment. Override this in language-specific templates.
+
+      Examples:
+        task build
     cmds:
       - cmd: |
           echo "{{.__TF_HEADER_LINE}}"
-          echo "Building {{.RUST_PROJECT_NAME}} for {{OS}}/{{ARCH}}"
+          echo "Building for {{OS}}/{{ARCH}}"
           echo "{{.__TF_HEADER_LINE}}"
-      - task: print:env
-      # TODO: add actual build commands here
+      - task: common:print:env
       - cmd: echo "This is bash, building is not necessary for scripts."
         platforms: [darwin, linux]
       - cmd: echo "This is PowerShell, building is not necessary for scripts."
@@ -34,12 +50,23 @@ tasks:
     sources:
       - src/**/*.{sh,ps1}
 
-  # ============================================================================
+  # ==========================================================================
   # Clean Tasks
-  # ============================================================================
+  # ==========================================================================
 
   clean:
     desc: 'Clean all build artifacts'
+    summary: |
+      Clean all build artifacts
+
+      Removes all generated files and directories including:
+        - .task/     - Task cache
+        - build/     - Build output
+        - dist/      - Distribution archives
+        - docs-html/ - Built documentation
+
+      Examples:
+        task clean
     cmds:
       - cmd: |
           echo "Cleaning build artifacts..."
@@ -50,337 +77,125 @@ tasks:
             docs-html
           echo "Build artifacts cleaned"
 
-  # ============================================================================
-  # Code Quality Tasks
-  # ============================================================================
-
-  duplicate-check:
-    desc: 'Check for duplicate code using jscpd'
-    cmds:
-      - |
-        {{.__TF_MISE_E}} npm run duplicate-check
-      - git add .jscpd/jscpd-badge.svg 2>/dev/null || true
-
-  eslint:
-    desc: 'Run ESLint'
-    cmds:
-      - |
-        {{.__TF_MISE_E}} npx eslint {{.CLI_ARGS}}
-    silent: true
-    sources:
-      - '**/*.{json,md,toml,yaml,yml}'
+  # ==========================================================================
+  # Code Quality Tasks (Project-specific overrides)
+  # ==========================================================================
 
   format:
     desc: 'Format code and fix issues'
     cmds:
-      - task: format:prettier
-      - task: format:ruff
-      - cmd: echo "Code format completed"
+      - task: quality:format:prettier
+      - task: quality:format:ruff
+      - cmd: echo "✅ Code format completed"
 
   format:check:
     desc: 'Check code formatting without fixing'
     cmds:
-      - task: format:check:prettier
-      - task: format:check:ruff
-      - cmd: echo "Code format check completed"
-
-  format:check:prettier:
-    desc: 'Check code formatting using Prettier'
-    cmds:
-      - task: prettier
-        vars:
-          CLI_ARGS: '--check .'
-      - echo "- prettier format check completed"
-    silent: true
-
-  format:check:ruff:
-    aliases: [format:check:py, format:check:python]
-    desc: 'Check Python code formatting using Ruff'
-    cmds:
-      - task: ruff
-        vars:
-          CLI_ARGS: 'format --check .'
-      - echo "- ruff format check completed"
-    silent: true
-
-  format:prettier:
-    desc: 'Format code using Prettier'
-    cmds:
-      - task: prettier
-        vars:
-          CLI_ARGS: '--write .'
-    silent: true
-
-  format:ruff:
-    aliases: [format:py, format:python]
-    desc: 'Format Python code using Ruff'
-    cmds:
-      - task: ruff
-        vars:
-          CLI_ARGS: 'format .'
-      - echo "- ruff format completed"
-    silent: true
+      - task: quality:format:check:prettier
+      - task: quality:format:check:ruff
+      - cmd: echo "✅ Code format check completed"
 
   lint:
     desc: 'Run linter and fix issues'
     cmds:
-      - task: lint:eslint
-      - task: lint:pylint
-      - task: lint:pwshlint
-      - task: lint:shlint
-      - cmd: echo "Linting completed"
+      - task: quality:lint:eslint
+      - task: quality:lint:pylint
+      - task: quality:lint:pwshlint
+      - task: quality:lint:shlint
+      - cmd: echo "✅ Linting completed"
 
   lint:check:
     desc: 'Run linter without fixing'
     cmds:
-      - task: lint:check:eslint
-      - task: lint:check:pylint
-      - task: lint:check:pwshlint
-      - task: lint:check:shlint
-      - cmd: echo "Linting check completed"
-
-  lint:check:eslint:
-    desc: 'Check code using ESLint'
-    cmds:
-      - task: eslint
-        vars:
-          CLI_ARGS: '.'
-      - echo "- eslint lint check completed"
-    silent: true
-
-  lint:check:pylint:
-    aliases: [lint:check:py, lint:check:python]
-    desc: 'Check Python scripts using pylint'
-    cmds:
-      - task: lint:pylint
-      - echo "- pylint lint check completed"
-    silent: true
-
-  lint:check:pwshlint:
-    aliases: [lint:check:pwsh]
-    desc: 'Check PowerShell scripts using PSScriptAnalyzer'
-    cmds:
-      - task: pwshlint_py
-      - echo "- pwsh lint completed"
-    silent: true
-
-  lint:check:shlint:
-    aliases: [lint:check:bash, lint:check:sh]
-    desc: 'Check shell scripts using ShellCheck'
-    cmds:
-      - task: shlint_py
-      - echo "- bash lint completed"
-    silent: true
-
-  lint:eslint:
-    desc: 'Lint code using ESLint'
-    cmds:
-      - task: eslint
-        vars:
-          CLI_ARGS: '--fix .'
-      - echo "- eslint lint completed"
-    silent: true
-
-  lint:pylint:
-    aliases: [lint:py, lint:python]
-    desc: 'Lint Python scripts using pylint'
-    cmds:
-      - task: pylint
-        vars:
-          CLI_ARGS: '.'
-      - echo "- pylint lint completed"
-    silent: true
-
-  lint:pwshlint:
-    aliases: [lint:pwsh]
-    desc: 'Lint PowerShell scripts using PSScriptAnalyzer'
-    cmds:
-      - task: pwshlint_py
-        vars:
-          CLI_ARGS: '--fix'
-      - echo "- pwsh lint completed"
-    silent: true
-
-  lint:shlint:
-    aliases: [lint:bash, lint:sh]
-    desc: 'Lint shell scripts using ShellCheck'
-    cmds:
-      - task: shlint_py
-        vars:
-          CLI_ARGS: '--fix'
-      - echo "- bash lint completed"
-    silent: true
+      - task: quality:lint:check:eslint
+      - task: quality:lint:check:pylint
+      - task: quality:lint:check:pwshlint
+      - task: quality:lint:check:shlint
+      - cmd: echo "✅ Linting check completed"
 
   lint-staged:
     desc: 'Run linter on staged files and fix issues'
     cmds:
-      - |
-        {{.__TF_MISE_E}} npx -y lint-staged
-    silent: true
+      - task: quality:lint-staged
+
+  duplicate-check:
+    desc: 'Check for duplicate code using jscpd'
+    cmds:
+      - task: quality:duplicate-check
+
+  # ==========================================================================
+  # Low-level Quality Tasks (used by .lintstagedrc.yml)
+  # ==========================================================================
+
+  eslint:
+    desc: 'Run ESLint'
+    cmds:
+      - task: quality:eslint
+        vars:
+          CLI_ARGS: '{{.CLI_ARGS}}'
 
   prettier:
+    desc: 'Run Prettier'
     cmds:
-      - |
-        {{.__TF_MISE_E}} npx prettier {{.CLI_ARGS}}
-      - echo "- prettier format completed"
-    silent: true
-    sources:
-      - '**/*.{json,md,toml,yaml,yml}'
+      - task: quality:prettier
+        vars:
+          CLI_ARGS: '{{.CLI_ARGS}}'
 
   pylint:
-    desc: 'Run pylint'
+    desc: 'Run Pylint'
     cmds:
-      - |
-        {{.__TF_MISE_E_UV_RUN}} pylint {{.CLI_ARGS}}
-    silent: true
-    sources:
-      - '**/*.py'
-
-  pwshlint_py:
-    desc: 'Run PSScriptAnalyzer'
-    cmds:
-      - |
-        {{.__TF_MISE_E_UV_RUN}} .scripts/pwshlint.py {{.CLI_ARGS}}
-    silent: true
-    sources:
-      - '**/*.ps1'
+      - task: quality:pylint
+        vars:
+          CLI_ARGS: '{{.CLI_ARGS}}'
 
   ruff:
     desc: 'Run Ruff'
     cmds:
-      - |
-        {{.__TF_MISE_E_UV_RUN}} ruff {{.CLI_ARGS}}
-    silent: true
-    sources:
-      - '**/*.py'
+      - task: quality:ruff
+        vars:
+          CLI_ARGS: '{{.CLI_ARGS}}'
+
+  pwshlint_py:
+    desc: 'Run PSScriptAnalyzer via pwshlint.py'
+    cmds:
+      - task: quality:pwshlint_py
+        vars:
+          CLI_ARGS: '{{.CLI_ARGS}}'
 
   shlint_py:
-    desc: 'Run ShellCheck'
+    desc: 'Run ShellCheck via shlint.py'
     cmds:
-      - cmd: |
-          {{.__TF_MISE_E}} python .scripts/shlint.py {{.CLI_ARGS}}
-        platforms: [darwin, linux, windows]
-    silent: true
-    sources:
-      - '**/*.sh'
+      - task: quality:shlint_py
+        vars:
+          CLI_ARGS: '{{.CLI_ARGS}}'
 
-  # ============================================================================
-  # Dependencies
-  # ============================================================================
-
-  deps:clean:
-    desc: 'Clean all project dependencies'
-    cmds:
-      - task: deps:clean:mise
-      - task: deps:clean:npm
-      - task: deps:clean:uv
-
-  deps:clean:mise:
-    desc: 'Clean Mise dependencies'
-    cmds:
-      - echo "Cleaning Mise dependencies..."
-      - cmd: |
-          rm -rf \
-            ~/.local/share/mise/installs \
-            ~/AppData/mise/installs
-      - echo "Mise environment cleaned"
-
-  deps:clean:npm:
-    desc: 'Clean NodeJs dependencies'
-    cmds:
-      - |
-        echo "Cleaning NodeJs dependencies..."
-        rm -rf node_modules package-lock.json
-        echo "NodeJs environment cleaned"
-
-  deps:clean:uv:
-    desc: 'Clean Python dependencies'
-    cmds:
-      - |
-        echo "Cleaning Python dependencies..."
-        rm -rf .venv uv.lock
-        echo "Python environment cleaned"
-
-  deps:refresh:
-    desc: 'Refresh all project dependencies'
-    cmds:
-      - task: deps:refresh:mise
-      - task: deps:refresh:npm
-      - task: deps:refresh:uv
-
-  deps:refresh:mise:
-    desc: 'Refresh all Mise packages (update dependencies)'
-    cmds:
-      - |
-        echo "Refreshing Mise packages..."
-        touch mise.lock
-        mise trust && mise upgrade
-        echo "Packages refreshed"
-
-  deps:refresh:npm:
-    desc: 'Refresh all NodeJs packages (update dependencies)'
-    cmds:
-      - |
-        echo "Refreshing NodeJs packages..."
-        {{.__TF_MISE_E}} npm outdated \
-          && {{.__TF_MISE_E}} npm update \
-          && {{.__TF_MISE_E}} npm audit fix
-        echo "Packages refreshed"
-
-  deps:refresh:uv:
-    desc: 'Refresh all Python packages (update dependencies)'
-    cmds:
-      - |
-        echo "Refreshing Python packages..."
-        {{.__TF_MISE_E}} uv sync --upgrade
-        echo "Packages refreshed"
-
-  deps:sync:
-    desc: 'Install all project dependencies'
-    cmds:
-      - task: deps:sync:mise
-      - task: deps:sync:npm
-      - task: deps:sync:uv
-
-  deps:sync:mise:
-    desc: 'Install Mise dependencies'
-    cmds:
-      - |
-        echo "Installing Mise dependencies..."
-        touch mise.lock
-        mise trust && mise install --yes
-        echo "Mise environment ready"
-
-  deps:sync:npm:
-    desc: 'Install NodeJs dependencies'
-    cmds:
-      - |
-        echo "Installing NodeJs dependencies..."
-        {{.__TF_MISE_E}} npm install
-        {{.__TF_MISE_E}} npx husky
-        echo "NodeJs environment ready"
-
-  deps:sync:uv:
-    desc: 'Install Python dependencies'
-    cmds:
-      - |
-        echo "Installing Python dependencies..."
-        {{.__TF_MISE_E}} uv sync
-        echo "Python environment ready"
-
-  # ============================================================================
+  # ==========================================================================
   # Development Tools
-  # ============================================================================
+  # ==========================================================================
 
   debug:
     desc: 'Run application with debugger (gdb on Linux/macOS)'
+    summary: |
+      Run the application in debug mode
+
+      For the generic template, this builds first then shows
+      a placeholder message. Override in language-specific templates.
+
+      Examples:
+        task debug
     cmds:
       - task: build
-      # TODO: add actual run+debug commands here
-      - cmd: echo "Running (Debug mode)... "
+      - cmd: echo "Running (Debug mode)..."
 
   run:
     desc: 'Run application'
+    summary: |
+      Build and run the application
+
+      Runs the CLI script appropriate for the current platform.
+
+      Examples:
+        task run
     deps:
       - task: build
     cmds:
@@ -390,30 +205,54 @@ tasks:
           {{.__TF_MISE_E_PWSH_FILE}} src/cli.ps1
         platforms: [windows]
 
-  # ============================================================================
+  # ==========================================================================
   # Documentation Tasks
-  # ============================================================================
+  # ==========================================================================
 
   docs:
     desc: 'Build documentation'
+    summary: |
+      Build project documentation
+
+      Generates static HTML documentation using MkDocs.
+      Output is placed in docs-html/.
+
+      Examples:
+        task docs
     cmds:
       - |
         {{.__TF_MISE_E}} uv run mkdocs build
 
   docs:serve:
     desc: 'Serve documentation locally with live reload'
+    summary: |
+      Serve documentation with live reload
+
+      Starts a local development server at http://127.0.0.1:8000.
+      Changes to documentation are reflected immediately.
+
+      Examples:
+        task docs:serve
     cmds:
       - |
         echo "Starting documentation server..."
         echo "Open http://127.0.0.1:8000 in your browser"
         {{.__TF_MISE_E}} uv run mkdocs serve
 
-  # ============================================================================
+  # ==========================================================================
   # Test Tasks
-  # ============================================================================
+  # ==========================================================================
 
   test:
     desc: 'Run tests'
+    summary: |
+      Run all tests
+
+      Runs Bats tests (bash) on Unix and Pester tests (PowerShell)
+      on all platforms.
+
+      Examples:
+        task test
     cmds:
       - task: test:bats
       - task: test:pester
@@ -422,6 +261,15 @@ tasks:
   test:bats:
     aliases: [test:bash]
     desc: 'Run Bats tests for bash scripts'
+    summary: |
+      Run Bats tests for bash scripts
+
+      Runs .bats test files in the test/ directory.
+      Skipped on Windows (bash testing not supported).
+
+      Examples:
+        task test:bats
+        task test:bash
     cmds:
       - cmd: |
           {{.__TF_MISE_E}} npx -y bats test/*.bats
@@ -433,37 +281,54 @@ tasks:
 
   test:gen-coverage:
     desc: 'Generate test coverage report'
+    summary: |
+      Generate test coverage report
+
+      For the generic template, coverage is not implemented.
+      Override in language-specific templates.
+
+      Examples:
+        task test:gen-coverage
     cmds:
-      # TODO: add actual test+coverage commands here
       - cmd: echo "Didn't include testing (and coverage) for bash/pwsh."
     silent: true
 
   test:pester:
     aliases: [test:powershell, test:pwsh]
     desc: 'Run Pester tests for PowerShell scripts'
+    summary: |
+      Run Pester tests for PowerShell scripts
+
+      Runs Pester test files in the test/ directory.
+
+      Examples:
+        task test:pester
+        task test:pwsh
     cmds:
       - cmd: |
           {{.__TF_MISE_E_PWSH_FILE}} .scripts/run-pester.ps1
 
-  # ============================================================================
+  # ==========================================================================
   # Utility Tasks
-  # ============================================================================
+  # ==========================================================================
 
   print:env:
     desc: 'Print current build environment variables'
     cmds:
-      - cmd: |
-          {{.__TF_MISE_E}} env | sort
-        platforms: [darwin, linux]
-      - cmd: |
-          {{.__TF_MISE_E}} {{ .__TF_SEP
-            }}pwsh -Command '$BashPath=(Get-Command bash -ErrorAction SilentlyContinue).Path;{{ .__TF_SEP
-              }}if ($BashPath) { & $BashPath -c "env | sort" }{{ .__TF_SEP
-              }}else { Get-ChildItem "Env:" | Sort-Object Name | ForEach-Object { "$($_.Name)=$($_.Value)" } }'
-        platforms: [windows]
+      - task: common:print:env
 
   pwsh:
     desc: 'Run PowerShell scripts'
+    summary: |
+      Run a PowerShell command
+
+      Internal utility task for running PowerShell commands.
+
+      Variables:
+        CODE: PowerShell code to execute (default: "echo 'Hello from PowerShell!'")
+
+      Examples:
+        task pwsh CODE="Get-Date"
     vars:
       CODE: '{{.CODE | default "echo \"Hello from PowerShell!\""}}'
     cmds:
@@ -473,12 +338,29 @@ tasks:
           # {{.__TF_MISE_E}} pwsh -Command "{{.CODE}}"
     silent: true
 
-  # ============================================================================
+  # ==========================================================================
   # Validation Tasks
-  # ============================================================================
+  # ==========================================================================
 
   validate:
-    desc: 'Run CI pipeline for specific build system and compiler'
+    desc: 'Run CI pipeline for validation'
+    summary: |
+      Run full CI validation pipeline
+
+      Executes the complete validation workflow:
+        1. format  - Format all code
+        2. clean   - Remove artifacts
+        3. build   - Build project
+        4. lint    - Run all linters
+        5. run     - Test run the application
+        6. clean   - Remove artifacts again
+        7. test    - Run all tests
+        8. docs    - Build documentation
+
+      Use this before pushing to ensure CI will pass.
+
+      Examples:
+        task validate
     cmds:
       - task: format
       - task: clean
@@ -491,7 +373,7 @@ tasks:
       - cmd: |
           echo ""
           echo "{{.__TF_HEADER_LINE}}"
-          echo "Validation successful"
+          echo "✅ Validation successful"
           echo "{{.__TF_HEADER_LINE}}"
           echo ""
     silent: true
