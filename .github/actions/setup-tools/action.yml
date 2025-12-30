@@ -53,7 +53,7 @@ runs:
       with:
         key: mise-downloads-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-${{ inputs.cache-version }}
         restore-keys: |
-          mise-downloads-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-version }}-
+          mise-downloads-${{ runner.os }}-${{ runner.arch }}-
         path: |
           ~/.local/share/mise/downloads
 
@@ -64,7 +64,7 @@ runs:
       with:
         key: mise-downloads-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-${{ inputs.cache-version }}
         restore-keys: |
-          mise-downloads-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-version }}-
+          mise-downloads-${{ runner.os }}-${{ runner.arch }}-
         path: |
           ~/AppData/Local/mise/downloads
 
@@ -79,7 +79,7 @@ runs:
       with:
         key: mise-installs-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-${{ inputs.cache-version }}
         restore-keys: |
-          mise-installs-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-version }}-
+          mise-installs-${{ runner.os }}-${{ runner.arch }}-
         path: |
           ~/.local/share/mise/installs
 
@@ -90,7 +90,7 @@ runs:
       with:
         key: mise-installs-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.lock') }}-${{ inputs.cache-version }}
         restore-keys: |
-          mise-installs-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-version }}-
+          mise-installs-${{ runner.os }}-${{ runner.arch }}-
         path: |
           ~/AppData/Local/mise/installs
 
@@ -103,7 +103,7 @@ runs:
       with:
         key: venv-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('uv.lock') }}-${{ inputs.cache-version }}
         restore-keys: |
-          venv-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-version }}-
+          venv-${{ runner.os }}-${{ runner.arch }}-
         path: .venv
 
     # ==========================================================================
@@ -115,7 +115,7 @@ runs:
       with:
         key: node-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}-${{ inputs.cache-version }}
         restore-keys: |
-          node-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-version }}-
+          node-${{ runner.os }}-${{ runner.arch }}-
         path: node_modules
 
     # ==========================================================================
