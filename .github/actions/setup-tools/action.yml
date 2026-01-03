@@ -69,8 +69,7 @@ runs:
           ~/AppData/Local/mise/downloads
 
     # ==========================================================================
-    # Cache Restore - Mise Installs (smaller tools only, excludes Rust toolchain)
-    # Rust toolchain is cached separately
+    # Cache Restore - Mise Installs
     # ==========================================================================
     - name: Restore Mise installs cache (Unix)
       id: mise-installs-cache-unix
