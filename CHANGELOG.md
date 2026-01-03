@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 (2026-01-03)
+
+### Bug Fixes
+
+* updated readme ([71f7eca](https://github.com/templ-project/generic/commit/71f7eca8515cb0f6b9b24a91056fc3256b18b4e1))
+
 ## 0.1.0 (2025-12-30)
 
 ### Features
