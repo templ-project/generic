@@ -16,9 +16,13 @@
   - [Testing](#testing)
     - [Bash Tests (Bats)](#bash-tests-bats)
     - [PowerShell Tests (Pester)](#powershell-tests-pester)
-  - [CI/CD Pipeline](#cicd-pipeline)
-  - [Pre-commit Hooks](#pre-commit-hooks)
+  - [Code Quality](#code-quality)
+    - [Pre-commit Hooks](#pre-commit-hooks)
   - [Configuration](#configuration)
+  - [Using as a Library](#using-as-a-library)
+    - [Bash](#bash)
+    - [PowerShell](#powershell)
+  - [CI/CD Pipeline](#cicd-pipeline)
   - [License](#license)
   - [Support](#support)
 
@@ -53,6 +57,7 @@ That's it! You now have a fully configured shell script project.
 
 | Feature                 | Tool                                                                                              | Description                           |
 | ----------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| **Languages**           | Bash + PowerShell                                                                                 | Cross-platform shell scripting        |
 | **Task Runner**         | [Taskfile](https://taskfile.dev/)                                                                 | Modern build automation               |
 | **Tool Management**     | [mise](https://mise.jdx.dev/)                                                                     | Isolated development environment      |
 | **Shell Linting**       | [ShellCheck](https://www.shellcheck.net/)                                                         | Bash/sh static analysis with auto-fix |
@@ -111,7 +116,7 @@ task deps:clean          # Remove all dependencies
 
 **Automatically installed via mise:**
 
-- Node.js (for ESLint, Prettier, jscpd)
+- Node.js 22 (for ESLint, Prettier, jscpd)
 - Python 3.11+ (for linting scripts, docs)
 - ShellCheck (bash linting)
 - PowerShell Core (cross-platform PowerShell)
@@ -155,6 +160,7 @@ task validate
 │   ├── pwshlint.py       # PSScriptAnalyzer wrapper
 │   ├── run-pester.ps1    # Pester test runner
 │   └── fix-mise-pwsh.*   # mise PowerShell installation fix
+├── .taskfiles/           # Shared Taskfile modules
 ├── src/                  # Source scripts
 │   ├── cli.sh            # Bash CLI entrypoint
 │   ├── cli.ps1           # PowerShell CLI entrypoint
@@ -205,25 +211,9 @@ Describe "Hello function" {
 
 Run with: `task test:pester`
 
-## CI/CD Pipeline
+## Code Quality
 
-The GitHub Actions pipeline runs on **Linux, macOS, and Windows**:
-
-| Workflow         | Trigger                 | Jobs                                                                               |
-| ---------------- | ----------------------- | ---------------------------------------------------------------------------------- |
-| `ci.yml`         | Push/PR to main/develop | Matrix orchestrator                                                                |
-| `ci.quality.yml` | Called by ci.yml        | lint, test, build, duplicate-check                                                 |
-| `ci.version.yml` | Push to main            | Semantic version bump ([Bumpalicious](https://github.com/dragoscops/bumpalicious)) |
-| `ci.release.yml` | After version bump      | Create GitHub release with archives                                                |
-
-**Release artifacts:**
-
-- `{project}-{version}.tar.gz` - Unix archive
-- `{project}-{version}.zip` - Windows archive
-
-Both contain the `src/` scripts, `README.md`, and `LICENSE`.
-
-## Pre-commit Hooks
+### Pre-commit Hooks
 
 Automatic validation via Husky + lint-staged:
 
@@ -252,12 +242,62 @@ Configure in:
 | `prettier.config.mjs`            | Prettier config (uses `@templ-project/prettier`)     |
 | `.jscpd.json`                    | Duplicate detection settings                         |
 
+## Using as a Library
+
+### Bash
+
+Source the library modules in your scripts:
+
+```bash
+#!/usr/bin/env bash
+
+# Source the greeter module
+source /path/to/src/greeter.sh
+
+# Use the functions
+message=$(hello "World")
+echo "$message"  # "Hello, World!"
+```
+
+### PowerShell
+
+Dot-source the library modules in your scripts:
+
+```powershell
+#!/usr/bin/env pwsh
+
+# Dot-source the greeter module
+. /path/to/src/greeter.ps1
+
+# Use the functions
+$message = Hello -Name "World"
+Write-Output $message  # "Hello, World!"
+```
+
+## CI/CD Pipeline
+
+The GitHub Actions pipeline runs on **Linux, macOS, and Windows**:
+
+| Workflow         | Trigger                 | Jobs                                                                               |
+| ---------------- | ----------------------- | ---------------------------------------------------------------------------------- |
+| `ci.yml`         | Push/PR to main/develop | Matrix orchestrator                                                                |
+| `ci.quality.yml` | Called by ci.yml        | lint, test, build, duplicate-check                                                 |
+| `ci.version.yml` | Push to main            | Semantic version bump ([Bumpalicious](https://github.com/dragoscops/bumpalicious)) |
+| `ci.release.yml` | After version bump      | Create GitHub release with archives                                                |
+
+**Release artifacts:**
+
+- `{project}-{version}.tar.gz` - Unix archive
+- `{project}-{version}.zip` - Windows archive
+
+Both contain the `src/` scripts, `README.md`, and `LICENSE`.
+
 ## License
 
 MIT © [Templ Project](https://github.com/templ-project)
 
 ## Support
 
-- 🐛 [Report Issues](https://github.com/templ-project/generic/issues)
-- 📖 [Documentation](https://templ-project.github.io/generic/)
-- ⭐ [Star on GitHub](https://github.com/templ-project/generic)
+- [Report Issues](https://github.com/templ-project/generic/issues)
+- [Documentation](https://templ-project.github.io/generic/)
+- [Star on GitHub](https://github.com/templ-project/generic)
